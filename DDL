@@ -1,1 +1,55 @@
+CREATE DATABASE practica_de_tp1;
+use practica_de_tp1;
 
+CREATE TABLE part_proyecto(
+	legajo INT NOT NULL PRIMARY KEY , 
+	nombre_apellido VARCHAR(255),
+	rol_desempeñado VARCHAR(255),
+	id_proyecto INT ,
+	proyecto VARCHAR(255)
+);
+
+CREATE TABLE rend_horas(
+	legajo INT NOT NULL,
+	cant_horas_dia INT,
+	cant_horas_semana INT,
+	cant_horas_mes INT
+);
+
+ALTER TABLE rend_horas ADD CONSTRAINT 
+	FOREIGN KEY (legajo)
+	REFERENCES part_proyecto(legajo);
+
+	
+create table liquidacion(
+	legajo INT NOT NULL ,
+	nombre_apellido VARCHAR(255), 
+	cliente VARCHAR(255),
+	id_proyecto INT,
+	proyecto VARCHAR(255),
+	cant_horas_mes DOUBLE ,
+	fecha_liquidacion DATETIME
+);
+
+
+ALTER TABLE liquidacion ADD CONSTRAINT 
+	FOREIGN KEY (legajo)
+	REFERENCES part_proyecto(legajo);
+
+
+	
+CREATE TABLE cliente(
+	cliente VARCHAR(255),
+	id_proyecto INT AUTO_INCREMENT PRIMARY KEY,  
+	proyecto VARCHAR(255),
+	costo_proyecto INT ,
+	est_facturacion VARCHAR(255)
+);
+ALTER TABLE liquidacion ADD CONSTRAINT 
+	FOREIGN KEY (id_proyecto)
+	REFERENCES cliente(id_proyecto);
+
+ALTER TABLE part_proyecto ADD CONSTRAINT 
+	FOREIGN KEY (id_proyecto)
+	REFERENCES cliente(id_proyecto);
+	
