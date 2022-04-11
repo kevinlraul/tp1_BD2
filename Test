@@ -1,1 +1,107 @@
+delimiter $$
+CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,
+										IN id_proyecto INT ,IN proyecto VARCHAR(50))
+BEGIN
+ 	INSERT INTO part_proyecto(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto)
+ 		VALUE(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto);
 
+END  
+$$
+
+
+CALL cargar_datos(100,'Juan carlos','tester',2,'pro_Atlantis');
+CALL cargar_datos(101,'Jose Carlos','Diseñador',3,'Pro_Aurora');
+CALL cargar_datos(102,'Juan Fernando','Ingeniero de Software',2,'pro_Atlantis');
+CALL cargar_datos(103,'Valentina Laverde','Analista de Sistemas',2,'pro_Atlantis');
+CALL cargar_datos(104,'Rosa María','tester',1,'Pro_cascada');
+CALL cargar_datos(105,'Martín Elías','Analista de Sistemas',1,'Pro_cascada');
+CALL cargar_datos(106,'Elvia Muñoz','Líder de Proyecto',1,'Pro_cascada');
+CALL cargar_datos(107,'Sara Teresa','Gerente de Proyecto',2,'pro_Atlantis');
+CALL cargar_datos(108,'Maria jose','Diseñador',2,'pro_Atlantis');
+cALL cargar_datos(109,'Hugo Andres ','Gerente de Proyecto',3,'Pro_Aurora');
+CALL cargar_datos(110,'Marcela Rincón','tester',3,'Pro_Aurora');
+CALL cargar_datos(111,'Javier Sanchez','Ingeniero de Software',3,'Pro_Aurora');
+CALL cargar_datos(112,'Margarita Suárez','Gerente de Proyecto',1,'Pro_cascada');
+CALL cargar_datos(113,'Jorge Lazaro','Analista de Sistemas.',3,'Pro_Aurora');
+CALL cargar_datos(114,'Hugo Cano','Líder de Proyecto',3,'Pro_Aurora');
+CALL cargar_datos(115,'Julieta Ponce','Líder de Proyecto',2,'pro_Atlantis');
+CALL cargar_datos(116,'Camilo Enrique ','Líder de Proyecto',1,'Pro_cascada');
+CALL cargar_datos(117,'Tulia Adriana','Diseñador',1,'Pro_cascada');
+
+
+------------------------------------------------------------------------------------------------------------------------------
+delimiter $$
+CREATE PROCEDURE inser_horas(IN legajo INT ,IN dia INT)
+BEGIN
+	INSERT INTO rend_horas(legajo,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+		VALUES(dia,dia* 5, dia *28);
+END 
+$$ 
+
+call inser_horas(100,4);
+call inser_horas(101,3);
+call inser_horas(102,5);
+call inser_horas(103,3);
+call inser_horas(104,3);
+call inser_horas(105,4);
+call inser_horas(106,5);
+call inser_horas(107,4);
+call inser_horas(108,4);
+call inser_horas(109,2);
+call inser_horas(110,4);
+call inser_horas(111,2);
+call inser_horas(112,4);
+call inser_horas(113,4);
+call inser_horas(114,4);
+call inser_horas(115,5);
+call inser_horas(116,4);
+call inser_horas(117,6);
+
+----------------------------------------------------------------------------------------------
+	
+delimiter $$
+CREATE TRIGGER inser_mes AFTER INSERT ON rend_horas 
+FOR EACH ROW 
+BEGIN
+DECLARE numero INT;
+
+	SELECT rend.cant_horas_mes INTO @numero
+	FROM part_proyecto part
+		INNER JOIN rend_horas rend ON(part.legajo=rend.legajo)
+	WHERE  new.legajo=rend.legajo; 
+	 
+	UPDATE liquidacion 
+	SET liquidacion.cant_horas_mes=@numero
+	WHERE new.legajo=liquidacion.legajo;
+END
+$$;
+
+------------------------------------------------------------------------------------------------------------------------
+delimiter $$
+CREATE PROCEDURE insert_cliente(IN cliente VARCHAR(255),IN proyecto VARCHAR(255),IN costo_proyecto INT,IN est_facturacion VARCHAR(255))
+BEGIN 
+	INSERT INTO cliente(cliente,proyecto,costo_proyecto,est_facturacion) 
+		VALUES(cliente,proyecto,costo_proyecto,est_facturacion);
+END 
+$$
+
+CALL insert_cliente('Pedro','Pro_cascada',2000000,'Pagado');
+CALL insert_cliente('Martinez','pro_Atlantis',3000000,'Adeuda');
+CALL insert_cliente('Maria','Pro_Aurora',1600000,'Adeuda');
+----------------------------------------------------------------------------------------------
+delimiter $$
+CREATE trigger actualizar_liquidacion after INSERT ON part_proyecto 
+FOR EACH ROW 
+BEGIN
+DECLARE nombre VARCHAR(255);
+
+	SELECT cli.cliente INTO @nombre 
+	FROM part_proyecto part
+		INNER JOIN cliente cli ON (part.id_proyecto=cli.id_proyecto)
+	WHERE part.legajo=NEW.legajo;
+		
+	 INSERT INTO liquidacion(legajo,nombre_apellido,cliente,id_proyecto,proyecto,fecha_liquidacion)
+	 	VALUES(NEW.legajo,NEW.nombre_apellido,@nombre,NEW.id_proyecto,NEW.proyecto,NOW());
+	
+END 
+$$;
