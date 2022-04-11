@@ -1,6 +1,5 @@
 delimiter $$
-CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,
-										IN id_proyecto INT ,IN proyecto VARCHAR(50))
+CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,	IN id_proyecto INT ,IN proyecto VARCHAR(50))
 BEGIN
  	INSERT INTO part_proyecto(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto)
  		VALUE(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto);
