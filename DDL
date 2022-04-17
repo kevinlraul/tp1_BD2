@@ -11,45 +11,57 @@ CREATE TABLE part_proyecto(
 
 CREATE TABLE rend_horas(
 	legajo INT NOT NULL,
+	fecha_inicio DATETIME, 
 	cant_horas_dia INT,
 	cant_horas_semana INT,
 	cant_horas_mes INT
 );
 
-ALTER TABLE rend_horas ADD CONSTRAINT 
-	FOREIGN KEY (legajo)
-	REFERENCES part_proyecto(legajo);
-
 	
-create table liquidacion(
-	legajo INT NOT NULL ,
-	nombre_apellido VARCHAR(255), 
+create table liqui_proyect_1(
+	legajo INT NOT NULL  ,
+	rol_desempeñado VARCHAR(255),
 	cliente VARCHAR(255),
 	id_proyecto INT,
-	proyecto VARCHAR(255),
+	proyecto VARCHAR(250),
 	cant_horas_mes DOUBLE ,
-	fecha_liquidacion DATETIME
+	fecha_liquidacion DATETIME,
+	estado_cuenta VARCHAR(25)	
+);
+	
+create table liqui_proyect_2(
+	legajo INT NOT NULL  ,
+	rol_desempeñado VARCHAR(255),
+	cliente VARCHAR(255),
+	id_proyecto INT,
+	proyecto VARCHAR(250),
+	cant_horas_mes DOUBLE ,
+	fecha_liquidacion DATETIME,
+	estado_cuenta VARCHAR(25)
 );
 
 
-ALTER TABLE liquidacion ADD CONSTRAINT 
-	FOREIGN KEY (legajo)
-	REFERENCES part_proyecto(legajo);
+create table liqui_proyect_3(
+	legajo INT NOT NULL  ,
+	rol_desempeñado VARCHAR(255),
+	cliente VARCHAR(255),
+	id_proyecto INT,
+	proyecto VARCHAR(250),
+	cant_horas_mes DOUBLE ,
+	fecha_liquidacion DATETIME,
+	estado_cuenta VARCHAR(25)
+);
 
-
-	
-CREATE TABLE cliente(
+CREATE TABLE facturacion(
 	cliente VARCHAR(255),
 	id_proyecto INT AUTO_INCREMENT PRIMARY KEY,  
 	proyecto VARCHAR(255),
-	costo_proyecto INT ,
-	est_facturacion VARCHAR(255)
+	cost_proyecto DOUBLE 
 );
-ALTER TABLE liquidacion ADD CONSTRAINT 
-	FOREIGN KEY (id_proyecto)
-	REFERENCES cliente(id_proyecto);
 
+	
 ALTER TABLE part_proyecto ADD CONSTRAINT 
 	FOREIGN KEY (id_proyecto)
-	REFERENCES cliente(id_proyecto);
+	REFERENCES facturacion(id_proyecto);
 	
+
