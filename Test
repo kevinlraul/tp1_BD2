@@ -1,12 +1,11 @@
 delimiter $$
-CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,	IN id_proyecto INT ,IN proyecto VARCHAR(50))
+CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,IN id_proyecto INT ,IN proyecto VARCHAR(50))
 BEGIN
  	INSERT INTO part_proyecto(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto)
  		VALUE(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto);
 
 END  
 $$
-
 
 CALL cargar_datos(100,'Juan carlos','tester',2,'pro_Atlantis');
 CALL cargar_datos(101,'Jose Carlos','Diseñador',3,'Pro_Aurora');
@@ -24,83 +23,125 @@ CALL cargar_datos(112,'Margarita Suárez','Gerente de Proyecto',1,'Pro_cascada')
 CALL cargar_datos(113,'Jorge Lazaro','Analista de Sistemas.',3,'Pro_Aurora');
 CALL cargar_datos(114,'Hugo Cano','Líder de Proyecto',3,'Pro_Aurora');
 CALL cargar_datos(115,'Julieta Ponce','Líder de Proyecto',2,'pro_Atlantis');
-CALL cargar_datos(116,'Camilo Enrique ','Líder de Proyecto',1,'Pro_cascada');
+CALL cargar_datos(116,'Camilo Enrique ','Ingeniero de Software',1,'Pro_cascada');
 CALL cargar_datos(117,'Tulia Adriana','Diseñador',1,'Pro_cascada');
 
-
-------------------------------------------------------------------------------------------------------------------------------
 delimiter $$
-CREATE PROCEDURE inser_horas(IN legajo INT ,IN dia INT)
-BEGIN
-	INSERT INTO rend_horas(legajo,cant_horas_dia,cant_horas_semana,cant_horas_mes)
-		VALUES(dia,dia* 5, dia *28);
-END 
-$$ 
-
-call inser_horas(100,4);
-call inser_horas(101,3);
-call inser_horas(102,5);
-call inser_horas(103,3);
-call inser_horas(104,3);
-call inser_horas(105,4);
-call inser_horas(106,5);
-call inser_horas(107,4);
-call inser_horas(108,4);
-call inser_horas(109,2);
-call inser_horas(110,4);
-call inser_horas(111,2);
-call inser_horas(112,4);
-call inser_horas(113,4);
-call inser_horas(114,4);
-call inser_horas(115,5);
-call inser_horas(116,4);
-call inser_horas(117,6);
-
-----------------------------------------------------------------------------------------------
-	
-delimiter $$
-CREATE TRIGGER inser_mes AFTER INSERT ON rend_horas 
-FOR EACH ROW 
-BEGIN
-DECLARE numero INT;
-
-	SELECT rend.cant_horas_mes INTO @numero
-	FROM part_proyecto part
-		INNER JOIN rend_horas rend ON(part.legajo=rend.legajo)
-	WHERE  new.legajo=rend.legajo; 
-	 
-	UPDATE liquidacion 
-	SET liquidacion.cant_horas_mes=@numero
-	WHERE new.legajo=liquidacion.legajo;
-END
-$$;
-
-------------------------------------------------------------------------------------------------------------------------
-delimiter $$
-CREATE PROCEDURE insert_cliente(IN cliente VARCHAR(255),IN proyecto VARCHAR(255),IN costo_proyecto INT,IN est_facturacion VARCHAR(255))
+CREATE PROCEDURE insert_facturacion(IN cliente VARCHAR(255),IN id_proyecto INT ,IN proyecto VARCHAR(255),IN cost_proyecto double)
 BEGIN 
-	INSERT INTO cliente(cliente,proyecto,costo_proyecto,est_facturacion) 
-		VALUES(cliente,proyecto,costo_proyecto,est_facturacion);
+	INSERT INTO facturacion(cliente,id_proyecto,proyecto,cost_proyecto) 
+		VALUES(cliente,id_proyecto,proyecto,cost_proyecto);
 END 
 $$
 
-CALL insert_cliente('Pedro','Pro_cascada',2000000,'Pagado');
-CALL insert_cliente('Martinez','pro_Atlantis',3000000,'Adeuda');
-CALL insert_cliente('Maria','Pro_Aurora',1600000,'Adeuda');
-----------------------------------------------------------------------------------------------
-delimiter $$
-CREATE trigger actualizar_liquidacion after INSERT ON part_proyecto 
-FOR EACH ROW 
-BEGIN
-DECLARE nombre VARCHAR(255);
+CALL insert_facturacion('Pedro',1,'Pro_cascada',500000);
+CALL insert_facturacion('Martinez',2,'pro_Atlantis',250000);
+CALL insert_facturacion('Maria',3,'Pro_Aurora',350000);
 
-	SELECT cli.cliente INTO @nombre 
-	FROM part_proyecto part
-		INNER JOIN cliente cli ON (part.id_proyecto=cli.id_proyecto)
-	WHERE part.legajo=NEW.legajo;
-		
-	 INSERT INTO liquidacion(legajo,nombre_apellido,cliente,id_proyecto,proyecto,fecha_liquidacion)
-	 	VALUES(NEW.legajo,NEW.nombre_apellido,@nombre,NEW.id_proyecto,NEW.proyecto,NOW());
+
+
+################################trigger que me permiten mandar de manera ordenada los proyectos a su respectiva liquidacion mensual 
+
+delimiter $$ 
+CREATE TRIGGER insert_proyec_1 after INSERT ON part_proyecto
+FOR EACH ROW 
+BEGIN 
+DECLARE   cliente VARCHAR(60);
+	if(new.id_proyecto= 1 ) thEn 
 	
+	SELECT  fact.cliente INTO @cliente 
+	FROM part_proyecto part 
+		INNER JOIN facturacion fact on(part.id_proyecto=fact.id_proyecto)
+		WHERE part.legajo=new.legajo; 
+		
+	INSERT liqui_proyect_1(legajo,rol_desempeñado,cliente,id_proyecto,proyecto,fecha_liquidacion)
+		VALUES(new.legajo,new.rol_desempeñado,@cliente,new.id_proyecto,new.proyecto,'2022-03-31');
+
+		END if;
 END 
 $$;
+
+
+delimiter $$ 
+CREATE TRIGGER insert_proyec_2 AFTER INSERT ON part_proyecto
+FOR EACH ROW 
+BEGIN 
+DECLARE   cliente VARCHAR(60);
+	if(new.id_proyecto= 2 ) thEn 
+	
+	SELECT  fact.cliente INTO @cliente 
+	FROM part_proyecto part 
+		INNER JOIN facturacion fact on(part.id_proyecto=fact.id_proyecto)
+		WHERE part.legajo=new.legajo; 
+		
+	INSERT liqui_proyect_2(legajo,rol_desempeñado,cliente,id_proyecto,proyecto,fecha_liquidacion)
+		VALUES(new.legajo,new.rol_desempeñado,@cliente,new.id_proyecto,new.proyecto,'2022-03-31');
+		END if;
+END 
+$$;
+
+delimiter $$ 
+CREATE TRIGGER insert_proyec_3 AFTER INSERT ON part_proyecto
+FOR EACH ROW 
+BEGIN 
+DECLARE   cliente VARCHAR(60);
+	if(new.id_proyecto= 3) thEn 
+	
+	SELECT  fact.cliente INTO @cliente 
+	FROM part_proyecto part 
+		INNER JOIN facturacion fact on(part.id_proyecto=fact.id_proyecto)
+		WHERE part.legajo=new.legajo; 
+
+	INSERT liqui_proyect_3(legajo,rol_desempeñado,cliente,id_proyecto,proyecto,fecha_liquidacion)
+		VALUES(new.legajo,new.rol_desempeñado,@cliente,new.id_proyecto,new.proyecto,'2022-03-31');
+		END if;
+END 
+$$;
+
+
+
+######################################## los procedures respectivos que te permiten ejecutar el reajuste de cuenta 
+
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_1(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE nombre VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @nombre
+	FROM liqui_proyect_1 liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  liqui_proyect_1 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@nombre,'pedro',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
+END 
+$$ 
+
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_2(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE nombre VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @nombre
+	FROM liqui_proyect_2 liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  liqui_proyect_2 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@nombre,'Martinez',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
+END 
+$$ 
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_3(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE nombre VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @nombre
+	FROM liqui_proyect_3 liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  liqui_proyect_3 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@nombre,'Maria',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
+END 
+$$ 
+
+
+CALL reajuste_horas_cuenta_1(112,1,20);
+CALL reajuste_horas_cuenta_2(115,2,45);
+CALL reajuste_horas_cuenta_3(110,3,20);
+
