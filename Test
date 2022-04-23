@@ -1,11 +1,265 @@
+############################### todos los estored procedure ##########################################################33
+
 delimiter $$
-CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,IN id_proyecto INT ,IN proyecto VARCHAR(50))
+CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,
+										IN id_proyecto INT ,IN proyecto VARCHAR(50))
 BEGIN
  	INSERT INTO part_proyecto(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto)
  		VALUE(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto);
 
 END  
 $$
+
+delimiter $$
+CREATE PROCEDURE insert_horas(IN fecha DATETIME,IN legajo INT ,IN hora INT,IN dias INT )
+BEGIN
+DECLARE i INT; 
+DECLARE semana INT; 
+SET semana=5;
+SET i=0;
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH);
+if dias <  DAY(LAST_DAY(fecha) - 8) then 
+	while i < dias DO 
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD((fecha),INTERVAL i DAY),hora,hora* semana, hora* dias);
+			SET i= i + 1;
+	END while;	
+ELSE 
+SET dias = (DAY(LAST_DAY(fecha))- 8);
+	while i < dias DO 
+	
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD((fecha),INTERVAL i DAY),hora,hora* semana, hora* dias);
+			SET i= i + 1;
+	END while;
+END if;
+END 
+$$ 
+
+
+delimiter $$
+CREATE PROCEDURE insert_semanas(IN fecha datetime,IN legajo INT ,IN hora INT,IN semanas int)
+BEGIN
+DECLARE cant_dias INT ; 
+DECLARE i INT ;
+DECLARE num  INT ;
+SET i=0;
+SET cant_dias = 5 ; 
+SET num= semanas * cant_dias; 
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH);
+
+if  num < DAY(LAST_DAY(fecha)) then 
+	while i < num DO 	
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY),hora,hora* cant_dias, hora* num);			
+			SET i = i + 1; 
+	END while;
+ELSE 
+	while i < DAY(LAST_DAY(fecha)) - 8 DO 	
+	INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+		VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY),hora,hora* cant_dias,hora* (DAY(LAST_DAY(fecha))-8));			
+		SET i = i + 1; 
+	END while;
+END if;	
+END 
+$$
+
+delimiter $$
+CREATE PROCEDURE insert_mes(IN fecha datetime ,IN legajo INT ,IN hora INT)
+BEGIN
+DECLARE semana INT; 
+DECLARE  i INT ;
+DECLARE cont INT; 
+SET semana = 5 ;
+SET i=0;
+SET cont = 0 ;
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH);
+
+while i < DAY(LAST_DAY(fecha))  DO 
+	if cont = 5 then 
+		SET i = i + 2 ;
+		set cont =0 ;	
+	ELSE 	
+	INSERT into rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+		VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY), hora, hora * semana ,hora * (DAY(LAST_DAY(fecha)) -8)) ;
+	SET i = i + 1 ;
+	SET cont = cont + 1 ;
+	END if; 	
+END while; 
+END 
+$$
+
+
+delimiter $$
+CREATE PROCEDURE insert_facturacion(IN cliente VARCHAR(255),IN id_proyecto INT ,IN proyecto VARCHAR(255),IN cost_proyecto double)
+BEGIN 
+	INSERT INTO facturacion(cliente,id_proyecto,proyecto,cost_proyecto) 
+		VALUES(cliente,id_proyecto,proyecto,cost_proyecto);
+END 
+$$
+
+delimiter $$ 
+CREATE PROCEDURE insert_proyect()
+BEGIN
+	INSERT INTO liqui_proyect 
+		SELECT distinct part.legajo , part.`rol_desempeñado` , fac.cliente,part.id_proyecto,part.proyecto,ren.cant_horas_mes,last_day(ren.fecha_inicio),''
+		FROM part_proyecto part
+		INNER JOIN rend_horas ren ON(part.legajo=ren.legajo)
+		INNER JOIN facturacion fac ON (part.id_proyecto=fac.id_proyecto)
+		ORDER BY id_proyecto ;
+END 
+$$
+
+delimiter $$
+CREATE procedure estado_cuenta_proyect_1 (OUT total INT, IN id_proyect int, IN fecha_revisada DATETIME)
+BEGIN 
+DECLARE total INT;
+	CREATE TEMPORARY TABLE estado_cuenta_1(
+		legajo INT NOT NULL  ,
+		rol_desempeñado VARCHAR(255),
+		cliente VARCHAR(255),
+		id_proyecto INT,
+		proyecto VARCHAR(250),
+		cant_horas_mes DOUBLE ,
+		fecha_liquidacion DATETIME,
+		estado_cuenta VARCHAR(25)
+	);	
+	INSERT INTO estado_cuenta_1
+	SELECT *
+	FROM liqui_proyect liq where liq.id_proyecto= 1;
+	
+	SELECT sum(liq.cant_horas_mes) INTO @total 
+	FROM liqui_proyect liq
+	WHERE  liq.cant_horas_mes and liq.id_proyecto=1;
+	
+	INSERT INTO estado_cuenta_1(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES (01,'DirectivoPetrolero','pedro',id_proyect,'horas totales',@total,fecha_revisada,'pagado');	
+END 
+$$
+
+
+delimiter $$
+CREATE PROCEDURE estado_cuenta_proyect_2(OUT total INT, IN id_proyect int, IN fecha_revisada DATETIME)
+BEGIN 
+DECLARE total INT; 
+	
+		CREATE TEMPORARY TABLE estado_cuenta_2(
+		legajo INT NOT NULL  ,
+		rol_desempeñado VARCHAR(255),
+		cliente VARCHAR(255),
+		id_proyecto INT,
+		proyecto VARCHAR(250),
+		cant_horas_mes DOUBLE ,
+		fecha_liquidacion DATETIME,
+		estado_cuenta VARCHAR(25)
+	);	
+	INSERT INTO estado_cuenta_2
+	SELECT *
+	FROM liqui_proyect liq where liq.id_proyecto= 2;
+	
+	SELECT sum(liq.cant_horas_mes) INTO @total 
+	FROM liqui_proyect liq
+	WHERE  liq.cant_horas_mes and liq.id_proyecto=2;
+
+	INSERT INTO estado_cuenta_2(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES (02,'EcosistemasAcuaticos','Martines',id_proyect,'horas totales',@total,fecha_revisada,'pagado');	
+END 
+$$ 
+
+
+delimiter $$
+CREATE PROCEDURE estado_cuenta_proyect_3(OUT total INT, IN id_proyect int, IN fecha_revisada DATETIME)
+BEGIN 
+DECLARE total INT; 
+	
+		CREATE TEMPORARY TABLE estado_cuenta_3(
+		legajo INT NOT NULL  ,
+		rol_desempeñado VARCHAR(255),
+		cliente VARCHAR(255),
+		id_proyecto INT,
+		proyecto VARCHAR(250),
+		cant_horas_mes DOUBLE ,
+		fecha_liquidacion DATETIME,
+		estado_cuenta VARCHAR(25)
+	);	
+	INSERT INTO estado_cuenta_3
+	SELECT *
+	FROM liqui_proyect liq where liq.id_proyecto= 3;
+	
+	SELECT sum(liq.cant_horas_mes) INTO @total 
+	FROM liqui_proyect liq
+	WHERE  liq.cant_horas_mes and liq.id_proyecto=3;
+
+	INSERT INTO estado_cuenta_3(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES (03,'EcosistemasAcuaticos','Maria',id_proyect,'horas totales',@total,fecha_revisada,'pagado');	
+END 
+$$ 
+
+
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_1(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE rol VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @rol
+	FROM liqui_proyect liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  estado_cuenta_1 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@rol,'pedro',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
+END 
+$$ 
+
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_2(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE nombre VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @nombre
+	FROM liqui_proyect liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  estado_cuenta_2 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@nombre,'Martinez',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
+END 
+$$ 
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_3(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE nombre VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @nombre
+	FROM liqui_proyect liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  estado_cuenta_3 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@nombre,'Maria',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
+END 
+$$ 
+
+delimiter $$
+CREATE PROCEDURE actualizar_liquidacion ()
+BEGIN 
+	TRUNCATE TABLE liqui_proyect;	
+	
+	INSERT INTO liqui_proyect 
+		SELECT  *
+		FROM estado_cuenta_1  ; 
+		
+	INSERT INTO liqui_proyect 
+		SELECT *
+		FROM estado_cuenta_2 ;
+
+	INSERT INTO liqui_proyect 
+		SELECT  *
+		FROM 	 estado_cuenta_3 ;
+END 
+$$
+
+########################### todos lo que tenemos que gennera con las llamadas a los procedure ############################################# 
+
+
+CALL insert_facturacion('Pedro',1,'Pro_cascada',500000);
+CALL insert_facturacion('Martinez',2,'pro_Atlantis',250000);
+CALL insert_facturacion('Maria',3,'Pro_Aurora',350000);
+
 
 CALL cargar_datos(100,'Juan carlos','tester',2,'pro_Atlantis');
 CALL cargar_datos(101,'Jose Carlos','Diseñador',3,'Pro_Aurora');
@@ -26,125 +280,98 @@ CALL cargar_datos(115,'Julieta Ponce','Líder de Proyecto',2,'pro_Atlantis');
 CALL cargar_datos(116,'Camilo Enrique ','Ingeniero de Software',1,'Pro_cascada');
 CALL cargar_datos(117,'Tulia Adriana','Diseñador',1,'Pro_cascada');
 
-delimiter $$
-CREATE PROCEDURE insert_facturacion(IN cliente VARCHAR(255),IN id_proyecto INT ,IN proyecto VARCHAR(255),IN cost_proyecto double)
-BEGIN 
-	INSERT INTO facturacion(cliente,id_proyecto,proyecto,cost_proyecto) 
-		VALUES(cliente,id_proyecto,proyecto,cost_proyecto);
-END 
-$$
 
-CALL insert_facturacion('Pedro',1,'Pro_cascada',500000);
-CALL insert_facturacion('Martinez',2,'pro_Atlantis',250000);
-CALL insert_facturacion('Maria',3,'Pro_Aurora',350000);
-
-
-
-################################trigger que me permiten mandar de manera ordenada los proyectos a su respectiva liquidacion mensual 
-
-delimiter $$ 
-CREATE TRIGGER insert_proyec_1 after INSERT ON part_proyecto
-FOR EACH ROW 
-BEGIN 
-DECLARE   cliente VARCHAR(60);
-	if(new.id_proyecto= 1 ) thEn 
-	
-	SELECT  fact.cliente INTO @cliente 
-	FROM part_proyecto part 
-		INNER JOIN facturacion fact on(part.id_proyecto=fact.id_proyecto)
-		WHERE part.legajo=new.legajo; 
-		
-	INSERT liqui_proyect_1(legajo,rol_desempeñado,cliente,id_proyecto,proyecto,fecha_liquidacion)
-		VALUES(new.legajo,new.rol_desempeñado,@cliente,new.id_proyecto,new.proyecto,'2022-03-31');
-
-		END if;
-END 
-$$;
+call insert_horas('2022-03-05',100,4,25);
+call insert_horas('2022-03-06',101,3,15);
+call insert_horas('2022-03-10',102,5,19);
+call insert_horas('2022-03-02',103,3,23);
+call insert_horas('2022-03-01',104,3,22);
+call insert_horas('2022-03-01',105,6,21);
+call insert_horas('2022-03-01',106,5,30);
+call insert_horas('2022-03-01',107,4,18);
+call insert_horas('2022-03-01',108,5,20);
+call insert_horas('2022-03-01',109,2,25);
+call insert_horas('2022-03-01',110,4,26);
+call insert_horas('2022-03-01',111,2,17);
+call insert_horas('2022-03-01',112,4,22);
+call insert_horas('2022-03-01',113,3,29);
+call insert_horas('2022-03-01',114,4,24);
+call insert_horas('2022-03-01',115,5,20);
+call insert_horas('2022-03-01',116,4,15);
+call insert_horas('2022-03-01',117,6,17);
 
 
-delimiter $$ 
-CREATE TRIGGER insert_proyec_2 AFTER INSERT ON part_proyecto
-FOR EACH ROW 
-BEGIN 
-DECLARE   cliente VARCHAR(60);
-	if(new.id_proyecto= 2 ) thEn 
-	
-	SELECT  fact.cliente INTO @cliente 
-	FROM part_proyecto part 
-		INNER JOIN facturacion fact on(part.id_proyecto=fact.id_proyecto)
-		WHERE part.legajo=new.legajo; 
-		
-	INSERT liqui_proyect_2(legajo,rol_desempeñado,cliente,id_proyecto,proyecto,fecha_liquidacion)
-		VALUES(new.legajo,new.rol_desempeñado,@cliente,new.id_proyecto,new.proyecto,'2022-03-31');
-		END if;
-END 
-$$;
-
-delimiter $$ 
-CREATE TRIGGER insert_proyec_3 AFTER INSERT ON part_proyecto
-FOR EACH ROW 
-BEGIN 
-DECLARE   cliente VARCHAR(60);
-	if(new.id_proyecto= 3) thEn 
-	
-	SELECT  fact.cliente INTO @cliente 
-	FROM part_proyecto part 
-		INNER JOIN facturacion fact on(part.id_proyecto=fact.id_proyecto)
-		WHERE part.legajo=new.legajo; 
-
-	INSERT liqui_proyect_3(legajo,rol_desempeñado,cliente,id_proyecto,proyecto,fecha_liquidacion)
-		VALUES(new.legajo,new.rol_desempeñado,@cliente,new.id_proyecto,new.proyecto,'2022-03-31');
-		END if;
-END 
-$$;
+call insert_semanas('2022-03-01',100,5,3);
+call insert_semanas('2022-03-01',101,3,3);
+call insert_semanas('2022-03-01',102,4,2);
+call insert_semanas('2022-03-01',103,3,4);
+call insert_semanas('2022-03-01',104,2,3);
+call insert_semanas('2022-03-01',105,6,2);
+call insert_semanas('2022-03-01',106,5,3);
+call insert_semanas('2022-03-01',107,4,4);
+call insert_semanas('2022-03-01',108,5,5);
+call insert_semanas('2022-03-01',109,3,2);
+call insert_semanas('2022-03-01',110,4,3);
+call insert_semanas('2022-03-01',111,2,4);
+call insert_semanas('2022-03-01',112,4,3);
+call insert_semanas('2022-03-01',113,3,2);
+call insert_semanas('2022-03-01',114,4,9);
+call insert_semanas('2022-03-01',115,5,2);
+call insert_semanas('2022-03-01',116,4,1);
+call insert_semanas('2022-03-01',117,6,8);
 
 
-
-######################################## los procedures respectivos que te permiten ejecutar el reajuste de cuenta 
-
-
-delimiter $$
-create PROCEDURE reajuste_horas_cuenta_1(in legajo INT,IN id_proyecto int ,in horas INT )
-BEGIN
-DECLARE nombre VARCHAR(60);
-	SELECT liq.`rol_desempeñado` INTO @nombre
-	FROM liqui_proyect_1 liq 
-	WHERE liq.legajo=legajo  ; 
- 	INSERT INTO  liqui_proyect_1 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
- 		VALUES(legajo,@nombre,'pedro',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
-END 
-$$ 
-
-
-delimiter $$
-create PROCEDURE reajuste_horas_cuenta_2(in legajo INT,IN id_proyecto int ,in horas INT )
-BEGIN
-DECLARE nombre VARCHAR(60);
-	SELECT liq.`rol_desempeñado` INTO @nombre
-	FROM liqui_proyect_2 liq 
-	WHERE liq.legajo=legajo  ; 
- 	INSERT INTO  liqui_proyect_2 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
- 		VALUES(legajo,@nombre,'Martinez',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
-END 
-$$ 
-
-delimiter $$
-create PROCEDURE reajuste_horas_cuenta_3(in legajo INT,IN id_proyecto int ,in horas INT )
-BEGIN
-DECLARE nombre VARCHAR(60);
-	SELECT liq.`rol_desempeñado` INTO @nombre
-	FROM liqui_proyect_3 liq 
-	WHERE liq.legajo=legajo  ; 
- 	INSERT INTO  liqui_proyect_3 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
- 		VALUES(legajo,@nombre,'Maria',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
-END 
-$$ 
+call insert_mes('2022-03-01',100,4);
+call insert_mes('2022-03-01',101,3);
+call insert_mes('2022-03-01',102,5);
+call insert_mes('2022-03-01',103,3);
+call insert_mes('2022-03-01',104,3);
+call insert_mes('2022-03-01',105,6);
+call insert_mes('2022-03-01',106,5);
+call insert_mes('2022-03-01',107,4);
+call insert_mes('2022-03-01',108,5);
+call insert_mes('2022-03-01',109,2);
+call insert_mes('2022-03-01',110,4);
+call insert_mes('2022-03-01',111,2);
+call insert_mes('2022-03-01',112,4);
+call insert_mes('2022-03-01',113,3);
+call insert_mes('2022-03-01',114,4);
+call insert_mes('2022-03-01',115,5);
+call insert_mes('2022-03-01',116,4);
+call insert_mes('2022-03-01',117,6);
 
 call insert_proyect();
+
+CALL reajuste_horas_cuenta_1(112,1,20);
+CALL reajuste_horas_cuenta_1(117,1,25);
+CALL reajuste_horas_cuenta_1(105,1,8);
+
+
+CALL reajuste_horas_cuenta_2(115,2,45);
+CALL reajuste_horas_cuenta_2(108,2,15);
+CALL reajuste_horas_cuenta_2(100,2,25);
+
+
+CALL reajuste_horas_cuenta_3(101,3,10);
+CALL reajuste_horas_cuenta_3(110,3,20);
+CALL reajuste_horas_cuenta_3(114,3,25);
+
 CALL estado_cuenta_proyect_1(@total,1,'2022-04-16');
 CALL estado_cuenta_proyect_2(@total,2,'2022-04-25');
 call estado_cuenta_proyect_3(@total,3,'2022-04-8');
-CALL reajuste_horas_cuenta_1(112,1,20);
-CALL reajuste_horas_cuenta_2(115,2,45);
-CALL reajuste_horas_cuenta_3(110,3,20);
-CALL actualizar_liquidacion()
+
+
+select *FROM  estado_cuenta_1
+select *FROM  estado_cuenta_2
+select *FROM  estado_cuenta_3
+
+CALL actualizar_liquidacion ();
+
+
+SELECT * FROM liqui_proyect
+SELECT *FROM facturacion 
+SELECT *FROM part_proyecto
+SELECT *FROM rend_horas
+select *FROM  estado_cuenta_1 ##me sirve para poder ver las tablas temporarias 
+select *FROM  estado_cuenta_2 ##me sirve para poder ver las tablas temporarias
+select *FROM  estado_cuenta_3 ##me sirve para poder ver las tablas temporarias
