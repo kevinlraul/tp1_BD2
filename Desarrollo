@@ -1,197 +1,296 @@
 delimiter $$
-CREATE PROCEDURE insert_horas(IN legajo INT ,IN hora INT,IN dias INT )
+CREATE PROCEDURE insert_horas(IN fecha DATETIME,IN legajo INT ,IN hora INT,IN dias INT )
 BEGIN
-DECLARE semana INT;
-SET semana=6;
- 
-	INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
-		VALUES(legajo,('2022-03-01'),hora,hora* semana, hora* dias);
-		
+DECLARE i INT; 
+DECLARE semana INT; 
+SET semana=5;
+SET i=0;
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH); ## esto me ayudara cuando ingresen una fecha cualquiera me lo ponga en el primer dia del mes 
+
+if dias <  DAY(LAST_DAY(fecha) - 8) then ## esto me ayudara a tener los dia smaximos que se pueden trabajar  quitando los dias no laburables 
+	while i < dias DO 
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD((fecha),INTERVAL i DAY),hora,hora* semana, hora* dias);
+			SET i= i + 1;
+	END while;	
+ELSE 
+SET dias = (DAY(LAST_DAY(fecha))- 8); ## ingresaron mas dias de los que se pueden registrar a si sque se pondra los dias maximos en los que se puede trabajar 
+	while i < dias DO 
+	
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD((fecha),INTERVAL i DAY),hora,hora* semana, hora* dias);
+			SET i= i + 1;
+	END while;
+END if;
 END 
 $$ 
 
-DESCRIBE rend_horas
+call insert_horas('2022-03-05',100,4,25);
+call insert_horas('2022-03-06',101,3,15);
+call insert_horas('2022-03-10',102,5,19);
+call insert_horas('2022-03-02',103,3,23);
+call insert_horas('2022-03-01',104,3,22);
+call insert_horas('2022-03-01',105,6,21);
+call insert_horas('2022-03-01',106,5,30);
+call insert_horas('2022-03-01',107,4,18);
+call insert_horas('2022-03-01',108,5,20);
+call insert_horas('2022-03-01',109,2,25);
+call insert_horas('2022-03-01',110,4,26);
+call insert_horas('2022-03-01',111,2,17);
+call insert_horas('2022-03-01',112,4,22);
+call insert_horas('2022-03-01',113,3,29);
+call insert_horas('2022-03-01',114,4,24);
+call insert_horas('2022-03-01',115,5,20);
+call insert_horas('2022-03-01',116,4,15);
+call insert_horas('2022-03-01',117,6,17);
+
 delimiter $$
-CREATE PROCEDURE insert_semanas(IN legajo INT ,IN hora INT,IN semanas int)
+CREATE PROCEDURE insert_semanas(IN fecha datetime,IN legajo INT ,IN hora INT,IN semanas int)
 BEGIN
-DECLARE dias INT ; 
-SET dias = 6 ; 
+DECLARE cant_dias INT ; 
+DECLARE i INT ;
+DECLARE num  INT ;
+SET i=0;
+SET cant_dias = 5 ; 
+SET num= semanas * cant_dias; 
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH);
+
+if  num < DAY(LAST_DAY(fecha)) then 
+	while i < num DO 	
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY),hora,hora* cant_dias, hora* num);			
+			SET i = i + 1; 
+	END while;
+ELSE 
+	while i < DAY(LAST_DAY(fecha)) - 8 DO 	
 	INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
-		VALUES(legajo,('2022-03-01'),hora,hora* dias, hora* (dias * semanas ));
-		
+		VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY),hora,hora* cant_dias,hora* (DAY(LAST_DAY(fecha))-8));			
+		SET i = i + 1; 
+	END while;
+END if;	
 END 
 $$
 
+call insert_semanas('2022-03-01',100,5,3);
+call insert_semanas('2022-03-01',101,3,3);
+call insert_semanas('2022-03-01',102,4,2);
+call insert_semanas('2022-03-01',103,3,4);
+call insert_semanas('2022-03-01',104,2,3);
+call insert_semanas('2022-03-01',105,6,2);
+call insert_semanas('2022-03-01',106,5,3);
+call insert_semanas('2022-03-01',107,4,4);
+call insert_semanas('2022-03-01',108,5,5);
+call insert_semanas('2022-03-01',109,3,2);
+call insert_semanas('2022-03-01',110,4,3);
+call insert_semanas('2022-03-01',111,2,4);
+call insert_semanas('2022-03-01',112,4,3);
+call insert_semanas('2022-03-01',113,3,2);
+call insert_semanas('2022-03-01',114,4,9);
+call insert_semanas('2022-03-01',115,5,2);
+call insert_semanas('2022-03-01',116,4,1);
+call insert_semanas('2022-03-01',117,6,8);
+
+
 delimiter $$
-CREATE PROCEDURE insert_mes(IN legajo INT ,IN hora INT)
+CREATE PROCEDURE insert_mes(IN fecha datetime ,IN legajo INT ,IN hora INT)
 BEGIN
-DECLARE dias INT; 
-SET dias = 6 ;
-	INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
-		VALUES(legajo,('2022-03-01'),hora,hora * dias ,hora * (DAY(LAST_DAY('2022-3-1'))));
+DECLARE semana INT; 
+DECLARE  i INT ;
+DECLARE cont INT; 
+SET semana = 5 ;
+SET i=0;
+SET cont = 0 ;
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH);
+
+while i < DAY(LAST_DAY(fecha))  DO 
+	if cont = 5 then 
+		SET i = i + 2 ;
+		set cont =0 ;	
+	ELSE 	
+	INSERT into rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+		VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY), hora, hora * semana ,hora * (DAY(LAST_DAY(fecha)) -8)) ;
+	SET i = i + 1 ;
+	SET cont = cont + 1 ;
+	END if; 	
+END while; 
 END 
 $$
 
-call insert_horas(100,4,25);
-call insert_horas(101,3,15);
-call insert_horas(102,5,19);
-call insert_horas(103,3,23);
-call insert_horas(104,3,22);
-call insert_horas(105,6,21);
-call insert_horas(106,5,30);
-call insert_horas(107,4,18);
-call insert_horas(108,5,20);
-call insert_horas(109,2,25);
-call insert_horas(110,4,26);
-call insert_horas(111,2,17);
-call insert_horas(112,4,22);
-call insert_horas(113,3,29);
-call insert_horas(114,4,24);
-call insert_horas(115,5,20);
-call insert_horas(116,4,15);
-call insert_horas(117,6,17);
+call insert_mes('2022-03-01',100,4);
+call insert_mes('2022-03-01',101,3);
+call insert_mes('2022-03-01',102,5);
+call insert_mes('2022-03-01',103,3);
+call insert_mes('2022-03-01',104,3);
+call insert_mes('2022-03-01',105,6);
+call insert_mes('2022-03-01',106,5);
+call insert_mes('2022-03-01',107,4);
+call insert_mes('2022-03-01',108,5);
+call insert_mes('2022-03-01',109,2);
+call insert_mes('2022-03-01',110,4);
+call insert_mes('2022-03-01',111,2);
+call insert_mes('2022-03-01',112,4);
+call insert_mes('2022-03-01',113,3);
+call insert_mes('2022-03-01',114,4);
+call insert_mes('2022-03-01',115,5);
+call insert_mes('2022-03-01',116,4);
+call insert_mes('2022-03-01',117,6);
 
 
-call insert_semanas(100,4,3);
-call insert_semanas(101,3,3);
-call insert_semanas(102,5,2);
-call insert_semanas(103,3,4);
-call insert_semanas(104,3,3);
-call insert_semanas(105,6,2);
-call insert_semanas(106,5,3);
-call insert_semanas(107,4,4);
-call insert_semanas(108,5,5);
-call insert_semanas(109,2,2);
-call insert_semanas(110,4,3);
-call insert_semanas(111,2,4);
-call insert_semanas(112,4,3);
-call insert_semanas(113,3,2);
-call insert_semanas(114,4,4);
-call insert_semanas(115,5,2);
-call insert_semanas(116,4,1);
-call insert_semanas(117,6,5);
-
-
-call insert_mes(100,4);
-call insert_mes(101,3);
-call insert_mes(102,5);
-call insert_mes(103,3);
-call insert_mes(104,3);
-call insert_mes(105,6);
-call insert_mes(106,5);
-call insert_mes(107,4);
-call insert_mes(108,5);
-call insert_mes(109,2);
-call insert_mes(110,4);
-call insert_mes(111,2);
-call insert_mes(112,4);
-call insert_mes(113,3);
-call insert_mes(114,4);
-call insert_mes(115,5);
-call insert_mes(116,4);
-call insert_mes(117,6);
-
-
-############################################## triguer para  poner cant_horas_mes en su liquidacion respectiva 
+####################################################sirve apara poder cargar la liquidacion mensual con los valores de rend_horas y part_proyecto ####################################################
 delimiter $$ 
-CREATE TRIGGER inser_hora_meses_1 AFTER INSERT ON rend_horas 
-FOR EACH ROW 
+CREATE PROCEDURE insert_proyect()
 BEGIN
-	if(SELECT ren.cant_horas_mes 
-		FROM part_proyecto par
-		inner join rend_horas ren ON (par.legajo=ren.legajo)
-		WHERE new.legajo=par.legajo AND par.id_proyecto = 1) then 
-		
-		UPDATE liqui_proyect_1 
-		SET cant_horas_mes = new.cant_horas_mes
-		WHERE legajo=new.legajo;
-		
-		end if; 
+	INSERT INTO liqui_proyect 
+		SELECT distinct part.legajo , part.`rol_desempeñado` , fac.cliente,part.id_proyecto,part.proyecto,ren.cant_horas_mes,last_day(ren.fecha_inicio),''
+		FROM part_proyecto part
+		INNER JOIN rend_horas ren ON(part.legajo=ren.legajo)
+		INNER JOIN facturacion fac ON (part.id_proyecto=fac.id_proyecto)
+		ORDER BY id_proyecto ;
 END 
-$$;  
+$$
 
 
-delimiter $$ 
-CREATE TRIGGER inser_hora_meses_2 AFTER INSERT ON rend_horas 
-FOR EACH ROW 
-BEGIN
-DECLARE numero INT ;
-	if(SELECT ren.cant_horas_mes 
-		FROM part_proyecto par
-		inner join rend_horas ren ON (par.legajo=ren.legajo)
-		WHERE new.legajo = par.legajo AND par.id_proyecto = 2) then 
+####################### los stored procedure en el cual crearemos una temporary table en el cual me va a servir para poder agregar datos en las diferentes cuentas###########
+delimiter $$
+CREATE procedure estado_cuenta_proyect_1 (OUT total INT, IN id_proyect int, IN fecha_revisada DATETIME)
+BEGIN 
+DECLARE total INT;
+	CREATE TEMPORARY TABLE estado_cuenta_1(
+		legajo INT NOT NULL  ,
+		rol_desempeñado VARCHAR(255),
+		cliente VARCHAR(255),
+		id_proyecto INT,
+		proyecto VARCHAR(250),
+		cant_horas_mes DOUBLE ,
+		fecha_liquidacion DATETIME,
+		estado_cuenta VARCHAR(25)
+	);	
+	INSERT INTO estado_cuenta_1
+	SELECT *
+	FROM liqui_proyect liq where liq.id_proyecto= 1;
 	
-		
-		UPDATE liqui_proyect_2 
-		SET cant_horas_mes = new.cant_horas_mes 
-		WHERE liqui_proyect_2.legajo=new.legajo;
-		
-		end if; 
+	SELECT sum(liq.cant_horas_mes) INTO @total 
+	FROM liqui_proyect liq
+	WHERE  liq.cant_horas_mes and liq.id_proyecto=1;
+	
+	INSERT INTO estado_cuenta_1(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES (01,'DirectivoPetrolero','pedro',id_proyect,'horas totales',@total,fecha_revisada,'pagado');	
 END 
-$$;
+$$
 
-delimiter $$ 
-CREATE TRIGGER inser_hora_meses_3 AFTER INSERT ON rend_horas 
-FOR EACH ROW 
-BEGIN
-DECLARE numero INT;
-	if(SELECT ren.cant_horas_mes 
-		FROM part_proyecto par
-		inner join rend_horas ren ON (par.legajo=ren.legajo)
-		WHERE new.legajo = par.legajo AND par.id_proyecto = 3) then 
-
-		UPDATE liqui_proyect_3 
-		SET cant_horas_mes = new.cant_horas_mes 
-		WHERE new.legajo=liqui_proyect_3.legajo;
-		end if; 
-END 
-$$;    
-############################################en estos triguer calculo la cantidad de horas mensuales de cada liquidacion 
 
 delimiter $$
-CREATE PROCEDURE estado_cuenta_1(OUT total INT )
+CREATE PROCEDURE estado_cuenta_proyect_2(OUT total INT, IN id_proyect int, IN fecha_revisada DATETIME)
 BEGIN 
-
+DECLARE total INT; 
+	
+		CREATE TEMPORARY TABLE estado_cuenta_2(
+		legajo INT NOT NULL  ,
+		rol_desempeñado VARCHAR(255),
+		cliente VARCHAR(255),
+		id_proyecto INT,
+		proyecto VARCHAR(250),
+		cant_horas_mes DOUBLE ,
+		fecha_liquidacion DATETIME,
+		estado_cuenta VARCHAR(25)
+	);	
+	INSERT INTO estado_cuenta_2
+	SELECT *
+	FROM liqui_proyect liq where liq.id_proyecto= 2;
+	
 	SELECT sum(liq.cant_horas_mes) INTO @total 
-	FROM liqui_proyect_1 liq
-	WHERE  liq.cant_horas_mes;
-	
-	INSERT INTO  liqui_proyect_1(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
-		VALUES (0,'','',0,'horas totales',@total,'2022-04-02','pagado');
-	
+	FROM liqui_proyect liq
+	WHERE  liq.cant_horas_mes and liq.id_proyecto=2;
+
+	INSERT INTO estado_cuenta_2(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES (02,'EcosistemasAcuaticos','Martines',id_proyect,'horas totales',@total,fecha_revisada,'pagado');	
 END 
 $$ 
 
 delimiter $$
-CREATE PROCEDURE estado_cuenta_2(OUT total INT )
+CREATE PROCEDURE estado_cuenta_proyect_3(OUT total INT, IN id_proyect int, IN fecha_revisada DATETIME)
 BEGIN 
-
+DECLARE total INT; 
+	
+		CREATE TEMPORARY TABLE estado_cuenta_3(
+		legajo INT NOT NULL  ,
+		rol_desempeñado VARCHAR(255),
+		cliente VARCHAR(255),
+		id_proyecto INT,
+		proyecto VARCHAR(250),
+		cant_horas_mes DOUBLE ,
+		fecha_liquidacion DATETIME,
+		estado_cuenta VARCHAR(25)
+	);	
+	INSERT INTO estado_cuenta_3
+	SELECT *
+	FROM liqui_proyect liq where liq.id_proyecto= 3;
+	
 	SELECT sum(liq.cant_horas_mes) INTO @total 
-	FROM liqui_proyect_2 liq
-	WHERE  liq.cant_horas_mes;
-	
-	INSERT INTO  liqui_proyect_2(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
-		VALUES (0,'','',0,'horas totales',@total,'2022-04-02','pagado');
-	
+	FROM liqui_proyect liq
+	WHERE  liq.cant_horas_mes and liq.id_proyecto=3;
+
+	INSERT INTO estado_cuenta_3(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES (03,'EcosistemasAcuaticos','Maria',id_proyect,'horas totales',@total,fecha_revisada,'pagado');	
+END 
+$$ 
+
+
+
+############################ en estos procedure los usaremos para poder hacer el reajuste de horas y ponerlo en las tablas temporarias ######################333
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_1(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE rol VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @rol
+	FROM liqui_proyect liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  estado_cuenta_1 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@rol,'pedro',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
+END 
+$$ 
+
+
+delimiter $$
+create PROCEDURE reajuste_horas_cuenta_2(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE nombre VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @nombre
+	FROM liqui_proyect liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  estado_cuenta_2 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@nombre,'Martinez',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
 END 
 $$ 
 
 delimiter $$
-CREATE PROCEDURE estado_cuenta_3(OUT total INT )
-BEGIN 
-
-	SELECT sum(liq.cant_horas_mes) INTO @total 
-	FROM liqui_proyect_3 liq
-	WHERE  liq.cant_horas_mes;
-	
-	INSERT INTO  liqui_proyect_3(legajo,rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
-		VALUES (0,'','',0,'horas totales',@total,'2022-04-02','pagado');
-	
+create PROCEDURE reajuste_horas_cuenta_3(in legajo INT,IN id_proyecto int ,in horas INT )
+BEGIN
+DECLARE nombre VARCHAR(60);
+	SELECT liq.`rol_desempeñado` INTO @nombre
+	FROM liqui_proyect liq 
+	WHERE liq.legajo=legajo  ; 
+ 	INSERT INTO  estado_cuenta_3 (legajo,rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(legajo,@nombre,'Maria',id_proyecto,'reajustamos horas',- horas,'2022-04-19','');
 END 
 $$ 
+#################### y con este procedure sacaremos todo lo que esta en la tablas temporarias y lo actualizara en la liquidacion mensual #######################delimiter $$
+CREATE PROCEDURE actualizar_liquidacion ()
+BEGIN 
+	TRUNCATE TABLE liqui_proyect;	
+	
+	INSERT INTO liqui_proyect 
+		SELECT  *
+		FROM estado_cuenta_1  ; 
+		
+	INSERT INTO liqui_proyect 
+		SELECT *
+		FROM estado_cuenta_2 ;
 
-
-CALL estado_cuenta_1(@total);
-CALL estado_cuenta_2(@total);
-call estado_cuenta_3(@total);
+	INSERT INTO liqui_proyect 
+		SELECT  *
+		FROM estado_cuenta_3 ;
+END 
+$$
 
