@@ -140,8 +140,11 @@ DECLARE nombre VARCHAR(60);
 END 
 $$ 
 
-
+call insert_proyect();
+CALL estado_cuenta_proyect_1(@total,1,'2022-04-16');
+CALL estado_cuenta_proyect_2(@total,2,'2022-04-25');
+call estado_cuenta_proyect_3(@total,3,'2022-04-8');
 CALL reajuste_horas_cuenta_1(112,1,20);
 CALL reajuste_horas_cuenta_2(115,2,45);
 CALL reajuste_horas_cuenta_3(110,3,20);
-
+CALL actualizar_liquidacion()
