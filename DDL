@@ -23,7 +23,6 @@ ALTER TABLE rend_horas ADD CONSTRAINT
 REFERENCES part_proyecto(legajo);
 	
 create table liqui_proyect(
-	legajo INT NOT NULL  ,
 	rol_desempeñado VARCHAR(255),
 	cliente VARCHAR(255),
 	id_proyecto INT,
@@ -34,7 +33,9 @@ create table liqui_proyect(
 	
 );
 
+
 CREATE TABLE facturacion(
+	cargo VARCHAR(255),
 	cliente VARCHAR(255),
 	id_proyecto INT AUTO_INCREMENT PRIMARY KEY,  
 	proyecto VARCHAR(255),
@@ -44,7 +45,5 @@ CREATE TABLE facturacion(
 	
 ALTER TABLE part_proyecto ADD CONSTRAINT 
 	FOREIGN KEY (id_proyecto)
-REFERENCES facturacion(id_proyecto);
+REFERENCES  facturacion(id_proyecto);
 	
-
-
