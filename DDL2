@@ -138,9 +138,9 @@ BEGIN
 END  
 $$ 
 ## generamos usuarios y sus respectivas reestricciones 
-grant usage on practica_de_tp1_fase2.rend_horas to App_carga@'%';
+
 CREATE USER App_carga IDENTIFIED BY '123456';
-GRANT execute ON  practica_de_tp1_fase2.insert_horas App_carga@'%'; 
+GRANT execute ON  practica_de_tp1_fase2.rend_horas to App_carga@'%'; 
 CREATE USER liquidador IDENTIFIED BY '246810'; 
 grant
 CREATE USER administrador IDENTIFIED BY '3691215';
@@ -585,7 +585,7 @@ SELECT * FROM liqui_proyect;
 SELECT *FROM facturacion ;
 SELECT *FROM part_proyecto;
 SELECT *FROM rend_horas;
-################ para eliminar las tablas creadas 
+################33333333 para eliminar las tablas creadas 
 DROP TABLE rend_horas;
 DROP TABLE part_proyecto;
 DROP TABLE facturacion ;
