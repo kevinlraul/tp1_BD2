@@ -303,8 +303,6 @@ $$
 
 
 ----------------------------------------------------------------------------------------------------------------
-
-################## todos los datos a generar con todas las llamasdas a los stored procedures 
 ################## todos los datos a generar con todas las llamasdas a los stored procedures 
 
 CALL insert_facturacion('DirectivoPetrolero','Pedro',1,'Pro_cascada',500000);
@@ -420,7 +418,6 @@ DROP TABLE rend_horas;
 DROP TABLE part_proyecto;
 DROP TABLE facturacion ;
 DROP TABLE  liqui_proyect;
-DROP TABLE numerador ;
 DROP TABLE prueba_liqui_proyect;
 ## te puede dar error por las foren keys 
 TRUNCATE TABLE facturacion;
