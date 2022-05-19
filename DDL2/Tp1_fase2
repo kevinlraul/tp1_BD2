@@ -86,7 +86,6 @@ BEGIN
 			UPDATE numerador 
 			SET siguiente = num1
 			WHERE id_proyecto=1;  
-
 		END if;  
 
 	ELSEIF new.id_proyecto = 2 then 
