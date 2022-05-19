@@ -59,7 +59,7 @@ CREATE TABLE numerador(
 
 
 ## trigger 
-
+## tambien es posible har que cuando se elimine el id sea eliminado se guarde y poder volver a utilizar el id  pero para eso tendre que agregar un trigguer mas y otra tabla 
 DELIMITER $$
 CREATE TRIGGER registro before INSERT ON liqui_proyect 
 for each row
@@ -74,11 +74,8 @@ BEGIN
 		SET vacio_1=(SELECT COUNT(id_proyecto) FROM numerador WHERE id_proyecto= 1);
 		if vacio_1 = 0  then 
 			INSERT INTO  numerador(id_proyecto,siguiente)
-				VALUES(1,2); 
-		##	UPDATE liqui_proyect 
+				VALUES(1,2);
 			set new.id= 1;
-		##	WHERE id_proyecto=new.id_proyecto;
-
 		ELSE 
 			SET num1 =(SELECT siguiente FROM numerador WHERE id_proyecto= 1); 
 			##UPDATE liqui_proyect 
@@ -96,11 +93,8 @@ BEGIN
 		SET vacio_2=(SELECT COUNT(id_proyecto) FROM numerador WHERE id_proyecto= 2);
 		if vacio_2 = 0  then 
 			INSERT INTO  numerador(id_proyecto,siguiente)
-				VALUES(2,2);
-				
-			##UPDATE liqui_proyect 
-			set new.id= 1;
-			##WHERE id_proyecto=new.id_proyecto;			
+				VALUES(2,2);				
+			set new.id= 1;		
 		ELSE 
 			SET num2 = (SELECT siguiente FROM numerador WHERE id_proyecto= 2); 	
 			##UPDATE liqui_proyect 
@@ -119,10 +113,7 @@ BEGIN
 		if vacio_3 = 0  then 
 			INSERT INTO  numerador(id_proyecto,siguiente)
 				VALUES(3,2);
-									
-			#UPDATE liqui_proyect 
 			set new.id= 1;
-			#WHERE id_proyecto=new.id_proyecto;
 		ELSE 
 			SET num3 =(SELECT siguiente FROM numerador WHERE id_proyecto= 3); 	
 			##UPDATE liqui_proyect 
@@ -137,13 +128,7 @@ BEGIN
 	END if ;	 
 END  
 $$ 
-## generamos usuarios y sus respectivas reestricciones 
 
-CREATE USER App_carga IDENTIFIED BY '123456'; ## la creacion de usario 
-
-
-## para poder eliminar user  
-drop user administrador@'%'
 ################################ todos los estore procedure ###################################33
 delimiter $$
 CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,
