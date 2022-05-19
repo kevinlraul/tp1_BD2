@@ -1,5 +1,6 @@
-CREATE DATABASE practica_de_tp1;
-use practica_de_tp1;
+###### la creacion de las tablas 
+CREATE DATABASE practica_de_tp1_fase2;
+use practica_tp1_fase2;
 
 CREATE TABLE part_proyecto(
 	legajo INT NOT NULL PRIMARY KEY , 
@@ -23,6 +24,7 @@ ALTER TABLE rend_horas ADD CONSTRAINT
 REFERENCES part_proyecto(legajo);
 	
 create table liqui_proyect(
+	id INT,  
 	rol_desempeñado VARCHAR(255),
 	cliente VARCHAR(255),
 	id_proyecto INT,
@@ -46,4 +48,3 @@ CREATE TABLE facturacion(
 ALTER TABLE part_proyecto ADD CONSTRAINT 
 	FOREIGN KEY (id_proyecto)
 REFERENCES  facturacion(id_proyecto);
-	
