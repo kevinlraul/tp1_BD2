@@ -5,16 +5,15 @@ DECLARE i INT;
 DECLARE semana INT; 
 SET semana=5;
 SET i=0;
-SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH); ## esto me ayudara cuando ingresen una fecha cualquiera me lo ponga en el primer dia del mes 
-
-if dias <  DAY(LAST_DAY(fecha) - 8) then ## esto me ayudara a tener los dia smaximos que se pueden trabajar  quitando los dias no laburables 
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -2 MONTH);
+if dias <  DAY(LAST_DAY(fecha) - 8) then 
 	while i < dias DO 
 		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
 			VALUES(legajo,DATE_ADD((fecha),INTERVAL i DAY),hora,hora* semana, hora* dias);
 			SET i= i + 1;
 	END while;	
 ELSE 
-SET dias = (DAY(LAST_DAY(fecha))- 8); ## ingresaron mas dias de los que se pueden registrar a si sque se pondra los dias maximos en los que se puede trabajar 
+SET dias = (DAY(LAST_DAY(fecha))- 8);
 	while i < dias DO 
 	
 		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
@@ -25,24 +24,24 @@ END if;
 END 
 $$ 
 
-call insert_horas('2022-03-05',100,4,25);
-call insert_horas('2022-03-06',101,3,15);
-call insert_horas('2022-03-10',102,5,19);
-call insert_horas('2022-03-02',103,3,23);
-call insert_horas('2022-03-01',104,3,22);
-call insert_horas('2022-03-01',105,6,21);
-call insert_horas('2022-03-01',106,5,30);
-call insert_horas('2022-03-01',107,4,18);
-call insert_horas('2022-03-01',108,5,20);
-call insert_horas('2022-03-01',109,2,25);
-call insert_horas('2022-03-01',110,4,26);
-call insert_horas('2022-03-01',111,2,17);
-call insert_horas('2022-03-01',112,4,22);
-call insert_horas('2022-03-01',113,3,29);
-call insert_horas('2022-03-01',114,4,24);
-call insert_horas('2022-03-01',115,5,20);
-call insert_horas('2022-03-01',116,4,15);
-call insert_horas('2022-03-01',117,6,17);
+call insert_horas(NOW(),100,4,25);
+call insert_horas(NOW(),101,3,15);
+call insert_horas(NOW(),102,5,19);
+call insert_horas(NOW(),103,3,23);
+call insert_horas(NOW(),104,3,22);
+call insert_horas(NOW(),105,6,21);
+call insert_horas(NOW(),106,5,30);
+call insert_horas(NOW(),107,4,18);
+call insert_horas(NOW(),108,5,20);
+call insert_horas(NOW(),109,2,25);
+call insert_horas(NOW(),110,4,26);
+call insert_horas(NOW(),111,2,17);
+call insert_horas(NOW(),112,4,22);
+call insert_horas(NOW(),113,3,29);
+call insert_horas(NOW(),114,4,24);
+call insert_horas(NOW(),115,5,20);
+call insert_horas(NOW(),116,4,15);
+call insert_horas(NOW(),117,6,17);
 
 delimiter $$
 CREATE PROCEDURE insert_semanas(IN fecha datetime,IN legajo INT ,IN hora INT,IN semanas int)
@@ -53,7 +52,7 @@ DECLARE num  INT ;
 SET i=0;
 SET cant_dias = 5 ; 
 SET num= semanas * cant_dias; 
-SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH);
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -2 MONTH);
 
 if  num < DAY(LAST_DAY(fecha)) then 
 	while i < num DO 	
@@ -71,24 +70,24 @@ END if;
 END 
 $$
 
-call insert_semanas('2022-03-01',100,5,3);
-call insert_semanas('2022-03-01',101,3,3);
-call insert_semanas('2022-03-01',102,4,2);
-call insert_semanas('2022-03-01',103,3,4);
-call insert_semanas('2022-03-01',104,2,3);
-call insert_semanas('2022-03-01',105,6,2);
-call insert_semanas('2022-03-01',106,5,3);
-call insert_semanas('2022-03-01',107,4,4);
-call insert_semanas('2022-03-01',108,5,5);
-call insert_semanas('2022-03-01',109,3,2);
-call insert_semanas('2022-03-01',110,4,3);
-call insert_semanas('2022-03-01',111,2,4);
-call insert_semanas('2022-03-01',112,4,3);
-call insert_semanas('2022-03-01',113,3,2);
-call insert_semanas('2022-03-01',114,4,9);
-call insert_semanas('2022-03-01',115,5,2);
-call insert_semanas('2022-03-01',116,4,1);
-call insert_semanas('2022-03-01',117,6,8);
+call insert_semanas(NOW(),100,5,3);
+call insert_semanas(NOW(),101,3,3);
+call insert_semanas(NOW(),102,4,2);
+call insert_semanas(NOW(),103,3,4);
+call insert_semanas(NOW(),104,2,3);
+call insert_semanas(NOW(),105,6,2);
+call insert_semanas(NOW(),106,5,3);
+call insert_semanas(NOW(),107,4,4);
+call insert_semanas(NOW(),108,5,5);
+call insert_semanas(NOW(),109,3,2);
+call insert_semanas(NOW(),110,4,3);
+call insert_semanas(NOW(),111,2,4);
+call insert_semanas(NOW(),112,4,3);
+call insert_semanas(NOW(),113,3,2);
+call insert_semanas(NOW(),114,4,9);
+call insert_semanas(NOW(),115,5,2);
+call insert_semanas(NOW(),116,4,1);
+call insert_semanas(NOW(),117,6,8);
 
 
 delimiter $$
@@ -100,7 +99,7 @@ DECLARE cont INT;
 SET semana = 5 ;
 SET i=0;
 SET cont = 0 ;
-SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -1 MONTH);
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -2 MONTH);
 
 while i < DAY(LAST_DAY(fecha))  DO 
 	if cont = 5 then 
@@ -116,92 +115,67 @@ END while;
 END 
 $$
 
-call insert_mes('2022-03-01',100,4);
-call insert_mes('2022-03-01',101,3);
-call insert_mes('2022-03-01',102,5);
-call insert_mes('2022-03-01',103,3);
-call insert_mes('2022-03-01',104,3);
-call insert_mes('2022-03-01',105,6);
-call insert_mes('2022-03-01',106,5);
-call insert_mes('2022-03-01',107,4);
-call insert_mes('2022-03-01',108,5);
-call insert_mes('2022-03-01',109,2);
-call insert_mes('2022-03-01',110,4);
-call insert_mes('2022-03-01',111,2);
-call insert_mes('2022-03-01',112,4);
-call insert_mes('2022-03-01',113,3);
-call insert_mes('2022-03-01',114,4);
-call insert_mes('2022-03-01',115,5);
-call insert_mes('2022-03-01',116,4);
-call insert_mes('2022-03-01',117,6);
+call insert_mes(NOW(),100,4);
+call insert_mes(NOW(),101,3);
+call insert_mes(NOW(),102,5);
+call insert_mes(NOW(),103,3);
+call insert_mes(NOW(),104,3);
+call insert_mes(NOW(),105,6);
+call insert_mes(NOW(),106,5);
+call insert_mes(NOW(),107,4);
+call insert_mes(NOW(),108,5);
+call insert_mes(NOW(),109,2);
+call insert_mes(NOW(),110,4);
+call insert_mes(NOW(),111,2);
+call insert_mes(NOW(),112,4);
+call insert_mes(NOW(),113,3);
+call insert_mes(NOW(),114,4);
+call insert_mes(NOW(),115,5);
+call insert_mes(NOW(),116,4);
+call insert_mes(NOW(),117,6);
 
 ################333 con este procedrue crearemos una temporary table en la cula ondremos todos los datos que necesitamos para poder sacar la liquidacion mensual 
-delimiter $$ 
-CREATE PROCEDURE insert_prue_proyect()
-BEGIN
-
-	create temporary table prueba_liqui_proyect(
-	rol_desempeñado VARCHAR(255),
-	cliente VARCHAR(255),
-	id_proyecto INT,
-	proyecto VARCHAR(250),
-	cant_horas_mes DOUBLE ,
-	fecha_liquidacion DATETIME,
-	estado_cuenta VARCHAR(25)
-);
-
-	INSERT INTO prueba_liqui_proyect 
-	SELECT part.`rol_desempeñado`,fac.cliente,part.id_proyecto,part.proyecto,ren.cant_horas_mes,last_day(ren.fecha_inicio) AS ultimo_dia_mes,' '
-	FROM part_proyecto part
-	INNER JOIN rend_horas ren ON(part.legajo=ren.legajo)
-	INNER JOIN facturacion fac ON (part.id_proyecto=fac.id_proyecto)
-	ORDER BY id_proyecto ;
-		
-END 
-$$
-
-##### mediante este procedure lo que haremos es que podremos separar por cargos a toods los trabajdores que tenemos y sumaremos todas sus cargas horarias aprte tambien sacaremos lo que es la liquidacion mensual 
-
 delimiter $$ 
 CREATE PROCEDURE insert_proyect ()
 BEGIN
 declare monto1 INT ; 
 declare monto2 INT ; 
-declare monto3 int ; 
+declare monto3 INT ; 
+
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 1 ;
-	
-		INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 1 ;
 		
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 1 ;
 	
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 1 ;
 	
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 1 ;
 
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 1 ;
 
 	SELECT sum(liq.cant_horas_mes) INTO @monto1
@@ -213,42 +187,41 @@ declare monto3 int ;
 			
 	
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 2 ;
 	
-		INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	INSERT INTO liqui_proyect
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 2 ;
 		
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 2 ;
 	
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 2 ;
 	
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 2 ;
 
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 2 ;
 		
-
 	select sum(liq.cant_horas_mes) into @monto2
 	from prueba_liqui_proyect liq
 	where liq.id_proyecto= 2;
@@ -257,41 +230,40 @@ declare monto3 int ;
 			VALUES ('AdminEcosistemasAcuaticos','Martines',2,'horas totales',@monto2,DATE_ADD(NOW(),INTERVAL 8 day),'pagado');	
 
 
-
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 3 ;
 	
 		INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 3 ;
 		
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 3 ;
 	
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 3 ;
 	
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 3 ;
 
 	INSERT INTO liqui_proyect
-	SELECT liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
 	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 3 ;
 		
 		
@@ -303,5 +275,3 @@ declare monto3 int ;
 			VALUES ('Astrofísica','Maria',3,'horas totales',@monto3,DATE_ADD(NOW(),INTERVAL 8 day),'pagado');	
 END 
 $$ 
-
-
