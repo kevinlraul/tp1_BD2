@@ -1,0 +1,570 @@
+###### la creacion de las tablas 
+CREATE DATABASE practica_de_tp1_fase2;
+use practica_tp1_fase2;
+
+CREATE TABLE part_proyecto(
+	legajo INT NOT NULL PRIMARY KEY , 
+	nombre_apellido VARCHAR(255),
+	rol_desempeñado VARCHAR(255),
+	id_proyecto INT ,
+	proyecto VARCHAR(255)
+);
+
+CREATE TABLE rend_horas(
+  
+	legajo INT NOT NULL,
+	fecha_inicio DATETIME, 
+	cant_horas_dia INT,
+	cant_horas_semana INT,
+	cant_horas_mes INT
+);
+
+ALTER TABLE rend_horas ADD CONSTRAINT 
+	FOREIGN KEY (legajo)
+REFERENCES part_proyecto(legajo);
+	
+create table liqui_proyect(
+	id INT,  
+	rol_desempeñado VARCHAR(255),
+	cliente VARCHAR(255),
+	id_proyecto INT,
+	proyecto VARCHAR(250),
+	cant_horas_mes DOUBLE ,
+	fecha_liquidacion DATETIME,
+	estado_cuenta VARCHAR(25)
+	
+);
+
+
+CREATE TABLE facturacion(
+	cargo VARCHAR(255),
+	cliente VARCHAR(255),
+	id_proyecto INT AUTO_INCREMENT PRIMARY KEY,  
+	proyecto VARCHAR(255),
+	cost_proyecto DOUBLE 
+);
+
+	
+ALTER TABLE part_proyecto ADD CONSTRAINT 
+	FOREIGN KEY (id_proyecto)
+REFERENCES  facturacion(id_proyecto);
+
+
+
+CREATE TABLE numerador(
+	id_proyecto CHAR(1),
+	siguiente INT
+); 
+
+
+
+## trigger 
+## tambien es posible har que cuando se elimine el id sea eliminado se guarde y poder volver a utilizar el id  pero para eso tendre que agregar un trigguer mas y otra tabla 
+DELIMITER $$
+CREATE TRIGGER registro before INSERT ON liqui_proyect 
+for each row
+BEGIN
+	DECLARE vacio_1 INT ; 
+	DECLARE vacio_2 INT ; 
+	DECLARE vacio_3 INT ;
+	DECLARE num1 INT ; 
+	DECLARE num2 INT ; 
+	DECLARE num3 INT ; 	 
+	if New.id_proyecto = 1 then 
+		SET vacio_1=(SELECT COUNT(id_proyecto) FROM numerador WHERE id_proyecto= 1);
+		if vacio_1 = 0  then 
+			INSERT INTO  numerador(id_proyecto,siguiente)
+				VALUES(1,2);
+			set new.id= 1;
+		ELSE 
+			SET num1 =(SELECT siguiente FROM numerador WHERE id_proyecto= 1); 
+			##UPDATE liqui_proyect 
+			set new.id= num1 ;
+			##WHERE id_proyecto=new.id_proyecto;
+			
+			SET num1 = num1 + 1 ;			
+			UPDATE numerador 
+			SET siguiente = num1
+			WHERE id_proyecto=1;  
+
+		END if;  
+
+	ELSEIF new.id_proyecto = 2 then 
+		SET vacio_2=(SELECT COUNT(id_proyecto) FROM numerador WHERE id_proyecto= 2);
+		if vacio_2 = 0  then 
+			INSERT INTO  numerador(id_proyecto,siguiente)
+				VALUES(2,2);				
+			set new.id= 1;		
+		ELSE 
+			SET num2 = (SELECT siguiente FROM numerador WHERE id_proyecto= 2); 	
+			##UPDATE liqui_proyect 
+			set new.id= num2;   
+			#WHERE id_proyecto=new.id_proyecto;
+			
+			SET num2 = num2 + 1 ;
+			UPDATE numerador 
+			SET siguiente = num2
+			WHERE id_proyecto=2; 
+			
+		END if;  
+		
+	ELSE
+		SET vacio_3=(SELECT COUNT(id_proyecto) FROM numerador WHERE id_proyecto= 3);
+		if vacio_3 = 0  then 
+			INSERT INTO  numerador(id_proyecto,siguiente)
+				VALUES(3,2);
+			set new.id= 1;
+		ELSE 
+			SET num3 =(SELECT siguiente FROM numerador WHERE id_proyecto= 3); 	
+			##UPDATE liqui_proyect 
+			set new.id= num3;  
+			##WHERE id_proyecto=new.id_proyecto;
+			
+			SET num3 =num3 + 1 ;
+			UPDATE numerador 
+			SET siguiente = num3
+			WHERE id_proyecto=3;  
+		END if;  
+	END if ;	 
+END  
+$$ 
+
+################################ todos los estore procedure ###################################33
+delimiter $$
+CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,
+										IN id_proyecto INT ,IN proyecto VARCHAR(50))
+BEGIN
+ 	INSERT INTO part_proyecto(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto)
+ 		VALUE(legajo,nombre_apellido,rol_desempeñado,id_proyecto,proyecto);
+
+END  
+$$
+
+delimiter $$
+CREATE PROCEDURE insert_horas(IN fecha DATETIME,IN legajo INT ,IN hora INT,IN dias INT )
+BEGIN
+DECLARE i INT; 
+DECLARE semana INT; 
+SET semana=5;
+SET i=0;
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -2 MONTH);
+if dias <  DAY(LAST_DAY(fecha) - 8) then 
+	while i < dias DO 
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD((fecha),INTERVAL i DAY),hora,hora* semana, hora* dias);
+			SET i= i + 1;
+	END while;	
+ELSE 
+SET dias = (DAY(LAST_DAY(fecha))- 8);
+	while i < dias DO 
+	
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD((fecha),INTERVAL i DAY),hora,hora* semana, hora* dias);
+			SET i= i + 1;
+	END while;
+END if;
+END 
+$$ 
+
+
+delimiter $$
+CREATE PROCEDURE insert_semanas(IN fecha datetime,IN legajo INT ,IN hora INT,IN semanas int)
+BEGIN
+DECLARE cant_dias INT ; 
+DECLARE i INT ;
+DECLARE num  INT ;
+SET i=0;
+SET cant_dias = 5 ; 
+SET num= semanas * cant_dias; 
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -2 MONTH);
+
+if  num < DAY(LAST_DAY(fecha)) then 
+	while i < num DO 	
+		INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+			VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY),hora,hora* cant_dias, hora* num);			
+			SET i = i + 1; 
+	END while;
+ELSE 
+	while i < DAY(LAST_DAY(fecha)) - 8 DO 	
+	INSERT INTO rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+		VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY),hora,hora* cant_dias,hora* (DAY(LAST_DAY(fecha))-8));			
+		SET i = i + 1; 
+	END while;
+END if;	
+END 
+$$
+
+delimiter $$
+CREATE PROCEDURE insert_mes(IN fecha datetime ,IN legajo INT ,IN hora INT)
+BEGIN
+DECLARE semana INT; 
+DECLARE  i INT ;
+DECLARE cont INT; 
+SET semana = 5 ;
+SET i=0;
+SET cont = 0 ;
+SET fecha= DATE_ADD(DATE_ADD(LAST_DAY(fecha), INTERVAL 1 DAY),INTERVAL -2 MONTH);
+
+while i < DAY(LAST_DAY(fecha))  DO 
+	if cont = 5 then 
+		SET i = i + 2 ;
+		set cont =0 ;	
+	ELSE 	
+	INSERT into rend_horas(legajo,fecha_inicio,cant_horas_dia,cant_horas_semana,cant_horas_mes)
+		VALUES(legajo,DATE_ADD(fecha,INTERVAL + i DAY), hora, hora * semana ,hora * (DAY(LAST_DAY(fecha)) -8)) ;
+	SET i = i + 1 ;
+	SET cont = cont + 1 ;
+	END if; 	
+END while; 
+END 
+$$
+
+
+delimiter $$
+CREATE PROCEDURE insert_facturacion(in cargo VARCHAR(255),IN cliente VARCHAR(255),IN id_proyecto INT ,IN proyecto VARCHAR(255),IN cost_proyecto double)
+BEGIN 
+	INSERT INTO facturacion(cargo,cliente,id_proyecto,proyecto,cost_proyecto) 
+		VALUES(cargo,cliente,id_proyecto,proyecto,cost_proyecto);
+END 
+$$
+
+delimiter $$ 
+CREATE PROCEDURE insert_prue_proyect()
+BEGIN
+
+	create temporary table prueba_liqui_proyect(
+	id INT , 
+	rol_desempeñado VARCHAR(255),
+	cliente VARCHAR(255),
+	id_proyecto INT,
+	proyecto VARCHAR(250),
+	cant_horas_mes DOUBLE ,
+	fecha_liquidacion DATETIME,
+	estado_cuenta VARCHAR(25)
+);
+
+	INSERT INTO prueba_liqui_proyect 
+	SELECT NULL ,part.`rol_desempeñado`,fac.cliente,part.id_proyecto,part.proyecto,ren.cant_horas_mes,last_day(ren.fecha_inicio) AS ultimo_dia_mes,' '
+	FROM part_proyecto part
+	INNER JOIN rend_horas ren ON(part.legajo=ren.legajo)
+	INNER JOIN facturacion fac ON (part.id_proyecto=fac.id_proyecto)
+	ORDER BY id_proyecto ;
+		
+END 
+$$
+
+delimiter $$ 
+CREATE PROCEDURE insert_proyect ()
+BEGIN
+declare monto1 INT ; 
+declare monto2 INT ; 
+declare monto3 INT ; 
+
+	INSERT INTO liqui_proyect
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 1 ;
+
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 1 ;
+		
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 1 ;
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 1 ;
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 1 ;
+
+	INSERT INTO liqui_proyect
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 1 ;
+
+	SELECT sum(liq.cant_horas_mes) INTO @monto1
+	from prueba_liqui_proyect liq
+	where liq.id_proyecto= 1;
+
+	INSERT INTO liqui_proyect(rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES ('DirectivoPetrolero','pedro',1,'horas totales',@monto1,DATE_ADD(NOW(),INTERVAL 8 day),'pagado');
+			
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 2 ;
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 2 ;
+		
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 2 ;
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 2 ;
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 2 ;
+
+	INSERT INTO liqui_proyect
+	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 2 ;
+		
+	select sum(liq.cant_horas_mes) into @monto2
+	from prueba_liqui_proyect liq
+	where liq.id_proyecto= 2;
+
+	INSERT INTO liqui_proyect(rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES ('AdminEcosistemasAcuaticos','Martines',2,'horas totales',@monto2,DATE_ADD(NOW(),INTERVAL 8 day),'pagado');	
+
+
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 3 ;
+	
+		INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 3 ;
+		
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 3 ;
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 3 ;
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 3 ;
+
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
+	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 3 ;
+		
+		
+	select sum(cant_horas_mes) into @monto3
+	from prueba_liqui_proyect  
+	where id_proyecto= 3;
+	
+	INSERT INTO liqui_proyect(rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
+			VALUES ('Astrofísica','Maria',3,'horas totales',@monto3,DATE_ADD(NOW(),INTERVAL 8 day),'pagado');	
+END 
+$$ 
+
+delimiter $$
+create PROCEDURE reajuste_horas_proyect(in variable VARCHAR(50) ,IN id_proyecto INT ,in proyecto VARCHAR(50),IN horas INT ,in rol VARCHAR(50) )
+BEGIN								
+DECLARE  numero INT;
+	if variable = 'suma' then 
+
+ 	INSERT INTO  liqui_proyect (rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(rol,'pedro',id_proyecto,'reajustamos horas',+ horas,DATE_ADD(NOW(),INTERVAL + 25 DAY),'se agregaron mas horas');
+	ELSE 
+ 
+ 	INSERT INTO  liqui_proyect (rol_desempeñado,cliente,id_proyecto,proyecto,cant_horas_mes,fecha_liquidacion,estado_cuenta)
+ 		VALUES(rol,'pedro',id_proyecto,'reajustamos horas',- horas,DATE_ADD(NOW(),INTERVAL + 25 DAY),'se restaron horas');
+ 	END if ;
+END 
+$$ 
+
+delimiter $$ ## este reajuste es especifico para  lo que pidio el profesor 
+CREATE procedure reajuste_horario(IN signo VARCHAR(50),IN usuarios INT,in horas INT ,in cant_tiempo int,IN tiempo VARCHAR(50),IN id_proyecto int,in proyecto varchar(50) ,in rol VARCHAR(50),IN fecha datetime)
+BEGIN
+DECLARE i INT ; 
+SET i = 0 ; 
+if tiempo = 'dias' then 
+	SET horas = horas * cant_tiempo; 
+ELSEIF tiempo= 'semana' then 
+	SET horas = horas * (cant_tiempo * 5);
+ELSE 
+	SET horas = horas * (LAST_DAY(fecha) - 8 ); ##le quitamos en todo el mes sus 8 dias que no son laburables 
+END if ; 
+	while i < usuarios do 
+	
+			CALL reajuste_horas_proyect(signo,id_proyecto,proyecto,horas,rol);
+			SET i  = i + 1 ;
+
+	END while ; 	 
+END
+$$  
+
+
+----------------------------------------------------------------------------------------------------------------
+
+################## todos los datos a generar con todas las llamasdas a los stored procedures 
+
+CALL insert_facturacion('DirectivoPetrolero','Pedro',1,'Pro_cascada',500000);
+CALL insert_facturacion('AdminEcosistemasAcuaticos','Martinez',2,'pro_Atlantis',250000);
+CALL insert_facturacion('Astrofísica','Maria',3,'Pro_Aurora',350000);
+
+
+CALL cargar_datos(100,'Juan carlos','tester',2,'pro_Atlantis');
+CALL cargar_datos(101,'Jose Carlos','Diseñador',3,'Pro_Aurora');
+CALL cargar_datos(102,'Juan Fernando','Ingeniero de Software',2,'pro_Atlantis');
+CALL cargar_datos(103,'Valentina Laverde','Analista de Sistemas',2,'pro_Atlantis');
+CALL cargar_datos(104,'Rosa María','tester',1,'Pro_cascada');
+CALL cargar_datos(105,'Martín Elías','Analista de Sistemas',1,'Pro_cascada');
+CALL cargar_datos(106,'Elvia Muñoz','Líder de Proyecto',1,'Pro_cascada');
+CALL cargar_datos(107,'Sara Teresa','Gerente de Proyecto',2,'pro_Atlantis');
+CALL cargar_datos(108,'Maria jose','Diseñador',2,'pro_Atlantis');
+cALL cargar_datos(109,'Hugo Andres ','Gerente de Proyecto',3,'Pro_Aurora');
+CALL cargar_datos(110,'Marcela Rincón','tester',3,'Pro_Aurora');
+CALL cargar_datos(111,'Javier Sanchez','Ingeniero de Software',3,'Pro_Aurora');
+CALL cargar_datos(112,'Margarita Suárez','Gerente de Proyecto',1,'Pro_cascada');
+CALL cargar_datos(113,'Jorge Lazaro','Analista de Sistemas',3,'Pro_Aurora');
+CALL cargar_datos(114,'Hugo Cano','Líder de Proyecto',3,'Pro_Aurora');
+CALL cargar_datos(115,'Julieta Ponce','Líder de Proyecto',2,'pro_Atlantis');
+CALL cargar_datos(116,'Camilo Enrique ','Ingeniero de Software',1,'Pro_cascada');
+CALL cargar_datos(117,'Tulia Adriana','Diseñador',1,'Pro_cascada');
+
+
+
+call insert_horas(NOW(),100,4,25);
+call insert_horas(NOW(),101,3,15);
+call insert_horas(NOW(),102,5,19);
+call insert_horas(NOW(),103,3,23);
+call insert_horas(NOW(),104,3,22);
+call insert_horas(NOW(),105,6,21);
+call insert_horas(NOW(),106,5,30);
+call insert_horas(NOW(),107,4,18);
+call insert_horas(NOW(),108,5,20);
+call insert_horas(NOW(),109,2,25);
+call insert_horas(NOW(),110,4,26);
+call insert_horas(NOW(),111,2,17);
+call insert_horas(NOW(),112,4,22);
+call insert_horas(NOW(),113,3,29);
+call insert_horas(NOW(),114,4,24);
+call insert_horas(NOW(),115,5,20);
+call insert_horas(NOW(),116,4,15);
+call insert_horas(NOW(),117,6,17);
+
+
+
+call insert_semanas(NOW(),100,5,3);
+call insert_semanas(NOW(),101,3,3);
+call insert_semanas(NOW(),102,4,2);
+call insert_semanas(NOW(),103,3,4);
+call insert_semanas(NOW(),104,2,3);
+call insert_semanas(NOW(),105,6,2);
+call insert_semanas(NOW(),106,5,3);
+call insert_semanas(NOW(),107,4,4);
+call insert_semanas(NOW(),108,5,5);
+call insert_semanas(NOW(),109,3,2);
+call insert_semanas(NOW(),110,4,3);
+call insert_semanas(NOW(),111,2,4);
+call insert_semanas(NOW(),112,4,3);
+call insert_semanas(NOW(),113,3,2);
+call insert_semanas(NOW(),114,4,9);
+call insert_semanas(NOW(),115,5,2);
+call insert_semanas(NOW(),116,4,1);
+call insert_semanas(NOW(),117,6,8);
+
+
+call insert_mes(NOW(),100,4);
+call insert_mes(NOW(),101,3);
+call insert_mes(NOW(),102,5);
+call insert_mes(NOW(),103,3);
+call insert_mes(NOW(),104,3);
+call insert_mes(NOW(),105,6);
+call insert_mes(NOW(),106,5);
+call insert_mes(NOW(),107,4);
+call insert_mes(NOW(),108,5);
+call insert_mes(NOW(),109,2);
+call insert_mes(NOW(),110,4);
+call insert_mes(NOW(),111,2);
+call insert_mes(NOW(),112,4);
+call insert_mes(NOW(),113,3);
+call insert_mes(NOW(),114,4);
+call insert_mes(NOW(),115,5);
+call insert_mes(NOW(),116,4);
+call insert_mes(NOW(),117,6);
+
+call insert_prue_proyect(); ## lo inserto en la prueba de liquidacion donde saco la cuenta de horas
+
+call insert_proyect();## esta sirve  para poder pasar todo lo que hay eb la liquidacion de prueba 
+
+
+### con esto podremos hacer las respectivas reaujeste de hora 
+CALL reajuste_horario('suma',15,8,3,'dias',1,'proyecto_Cascada','Desarrollador Senior',NOW());
+CALL reajuste_horario('resta',1,6,2,'dias',1,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
+CALL reajuste_horario('resta',6,4,5,'dias',1,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
+CALL reajuste_horario('suma',1,6,1,'semana',1,'proyecto_Cascada','tester',NOW()); 
+
+CALL reajuste_horario('suma',15,8,3,'dias',2,'proyecto_Cascada','Desarrollador Senior',NOW());
+CALL reajuste_horario('resta',1,6,2,'dias',2,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
+CALL reajuste_horario('resta',6,4,5,'dias',2,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
+CALL reajuste_horario('suma',1,6,1,'semana',2,'proyecto_Cascada','tester',NOW()); 
+
+CALL reajuste_horario('suma',15,8,3,'dias',3,'proyecto_Cascada','Desarrollador Senior',NOW());
+CALL reajuste_horario('resta',1,6,2,'dias',3,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
+CALL reajuste_horario('resta',6,4,5,'dias',3,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
+CALL reajuste_horario('suma',1,6,1,'semana',3,'proyecto_Cascada','tester',NOW()); 
+
+
+## para poder lo que hay en la liquidacion  y numerador 
+SELECT  * FROM numerador 
+SELECT* FROM liqui_proyect WHERE id_proyecto= 1;
+SELECT *FROM liqui_proyect WHERE id_proyecto= 2;
+SELECT *FROM liqui_proyect WHERE id_proyecto= 3;
+
+ ########### para poder ver las tablas creadas  y si funcionaron bien los stored procedure ################
+SELECT *FROM liqui_proyect WHERE id_proyecto = 1 
+select * from prueba_liqui_proyect; ## la tabla temporaria de la cual sacaremos todos los datos que necesitaremos 
+SELECT * FROM liqui_proyect;
+SELECT *FROM facturacion ;
+SELECT *FROM part_proyecto;
+SELECT *FROM rend_horas;
+####################### para eliminar las tablas creadas 
+DROP TABLE rend_horas;
+DROP TABLE part_proyecto;
+DROP TABLE facturacion ;
+DROP TABLE  liqui_proyect;
+DROP TABLE numerador ;
+DROP TABLE prueba_liqui_proyect;
+TRUNCATE TABLE facturacion;
+TRUNCATE TABLE part_proyecto;
+TRUNCATE TABLE rend_horas;
+truncate table liqui_proyect;
