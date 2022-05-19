@@ -1,6 +1,6 @@
 ###### la creacion de las tablas 
 CREATE DATABASE practica_de_tp1_fase2;
-use practica_de_tp1_fase2;
+use practica_tp1_fase2;
 
 CREATE TABLE part_proyecto(
 	legajo INT NOT NULL PRIMARY KEY , 
@@ -139,24 +139,11 @@ END
 $$ 
 ## generamos usuarios y sus respectivas reestricciones 
 
-CREATE USER App_carga IDENTIFIED BY '123456';
-GRANT execute ON  practica_de_tp1_fase2.rend_horas to App_carga@'%'; 
-CREATE USER liquidador IDENTIFIED BY '246810'; 
-grant
-CREATE USER administrador IDENTIFIED BY '3691215';
-GRANT ALL ON practica_de_tp1_fase2.`*` TO administrador@'%';
+CREATE USER App_carga IDENTIFIED BY '123456'; ## la creacion de usario 
 
 
-show grants for App_carga;
-show grants for liquidador;
-show grants for administrador;
-
-
-
-
-
-
-
+## para poder eliminar user  
+drop user administrador@'%'
 ################################ todos los estore procedure ###################################33
 delimiter $$
 CREATE PROCEDURE cargar_datos(IN legajo INT ,IN nombre_apellido varchar(255) ,IN rol_desempeñado VARCHAR(100) ,
@@ -280,8 +267,6 @@ BEGIN
 		
 END 
 $$
-
-SELECT * FROM prueba_liqui_proyect WHERE rol_desempeñado='Analista de Sistemas'
 
 delimiter $$ 
 CREATE PROCEDURE insert_proyect ()
@@ -491,6 +476,7 @@ CALL cargar_datos(116,'Camilo Enrique ','Ingeniero de Software',1,'Pro_cascada')
 CALL cargar_datos(117,'Tulia Adriana','Diseñador',1,'Pro_cascada');
 
 
+
 call insert_horas(NOW(),100,4,25);
 call insert_horas(NOW(),101,3,15);
 call insert_horas(NOW(),102,5,19);
@@ -509,6 +495,7 @@ call insert_horas(NOW(),114,4,24);
 call insert_horas(NOW(),115,5,20);
 call insert_horas(NOW(),116,4,15);
 call insert_horas(NOW(),117,6,17);
+
 
 
 call insert_semanas(NOW(),100,5,3);
@@ -550,18 +537,12 @@ call insert_mes(NOW(),115,5);
 call insert_mes(NOW(),116,4);
 call insert_mes(NOW(),117,6);
 
-call insert_prue_proyect(); 
+call insert_prue_proyect(); ## lo inserto en la prueba de liquidacion donde saco la cuenta de horas
 
-call insert_proyect();
-
-SELECT * FROM prueba_liqui_proyect
-SELECT  * FROM numerador 
-SELECT* FROM liqui_proyect WHERE id_proyecto= 1;
-SELECT *FROM liqui_proyect WHERE id_proyecto= 2;
-SELECT *FROM liqui_proyect WHERE id_proyecto= 3;
+call insert_proyect();## esta sirve  para poder pasar todo lo que hay eb la liquidacion de prueba 
 
 
-
+### con esto podremos hacer las respectivas reaujeste de hora 
 CALL reajuste_horario('suma',15,8,3,'dias',1,'proyecto_Cascada','Desarrollador Senior',NOW());
 CALL reajuste_horario('resta',1,6,2,'dias',1,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
 CALL reajuste_horario('resta',6,4,5,'dias',1,'proyecto_Cascada','Desarrollador Semi Senior',NOW());
@@ -578,6 +559,12 @@ CALL reajuste_horario('resta',6,4,5,'dias',3,'proyecto_Cascada','Desarrollador S
 CALL reajuste_horario('suma',1,6,1,'semana',3,'proyecto_Cascada','tester',NOW()); 
 
 
+## para poder lo que hay en la liquidacion  y numerador 
+SELECT  * FROM numerador 
+SELECT* FROM liqui_proyect WHERE id_proyecto= 1;
+SELECT *FROM liqui_proyect WHERE id_proyecto= 2;
+SELECT *FROM liqui_proyect WHERE id_proyecto= 3;
+
  ########### para poder ver las tablas creadas  y si funcionaron bien los stored procedure ################
 SELECT *FROM liqui_proyect WHERE id_proyecto = 1 
 select * from prueba_liqui_proyect; ## la tabla temporaria de la cual sacaremos todos los datos que necesitaremos 
@@ -585,7 +572,7 @@ SELECT * FROM liqui_proyect;
 SELECT *FROM facturacion ;
 SELECT *FROM part_proyecto;
 SELECT *FROM rend_horas;
-################33333333 para eliminar las tablas creadas 
+####################### para eliminar las tablas creadas 
 DROP TABLE rend_horas;
 DROP TABLE part_proyecto;
 DROP TABLE facturacion ;
