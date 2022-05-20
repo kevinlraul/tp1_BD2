@@ -14,7 +14,8 @@ GRANT EXECUTE ON PROCEDURE  insert_proyect TO liquidador@'%'; ##esste me permite
 ##creamos el usuario administrados
 CREATE USER administrador IDENTIFIED BY '3691215';
 ## con este grant le de todo los privilegios
-GRANT ALL ON practica_tp1_fase2.`*` TO administrador@'%';
+GRANT ALL ON practica_tp1_fase2.`*` TO administrador@'%';## te permite tener acceso y hacer lo que quieras con las tablas 
+GRANT EXECUTE ON *.* TO administrador@'%'; ## te permite tener acceso a todos los stored procedure 
 
 
 # con esto podremos ver todos las restricciones que tiene el usarios 
