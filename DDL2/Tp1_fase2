@@ -253,7 +253,7 @@ END
 $$
 
 delimiter $$ 
-CREATE PROCEDURE insert_proyect ()
+CREATE PROCEDURE insert_proyect()
 BEGIN
 declare monto1 INT ; 
 declare monto2 INT ; 
@@ -262,39 +262,39 @@ declare monto3 INT ;
 	INSERT INTO liqui_proyect
 	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 1 ;
+	where liq.`rol_desempeñado`='Analista de Sistemas' AND liq.id_proyecto= 1 
+	GROUP BY liq.id_proyecto
 
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 1 ;
+	where  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 1 ;
+	GROUP BY liq.id_proyecto
 		
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
-	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 1 ;
+	FROM prueba_liqui_proyect liq 	
+	where  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 1 ;
+	GROUP BY liq.id_proyecto
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 	
+	where  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 1 ;
+	GROUP BY liq.id_proyecto
 	
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 1 ;
-	
-	INSERT INTO liqui_proyect
-	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
-	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 1 ;
+	where  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 1 ;
+	GROUP BY liq.id_proyecto
 
 	INSERT INTO liqui_proyect
 	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 1 ;
-
+	where  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 1 ;
+	GROUP BY liq.id_proyecto
+	
 	SELECT sum(liq.cant_horas_mes) INTO @monto1
 	from prueba_liqui_proyect liq
 	where liq.id_proyecto= 1;
@@ -306,38 +306,38 @@ declare monto3 INT ;
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 2 ;
+	where  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 2 ;
+	GROUP BY liq.id_proyecto
 	
 	INSERT INTO liqui_proyect
 	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 2 ;
-		
+	where  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 2 ;
+	GROUP BY liq.id_proyecto
+	
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 2 ;
+	where  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 2 ;
+	GROUP BY liq.id_proyecto
 	
 	INSERT INTO liqui_proyect
 	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 2 ;
+	where  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 2 ;
+	GROUP BY liq.id_proyecto
 	
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 2 ;
+	where  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 2 ;
+	GROUP BY liq.id_proyecto
 
 	INSERT INTO liqui_proyect
 	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 2 ;
+	where  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 2 ;
+	GROUP BY liq.id_proyecto	
 		
 	select sum(liq.cant_horas_mes) into @monto2
 	from prueba_liqui_proyect liq
@@ -350,39 +350,38 @@ declare monto3 INT ;
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 3 ;
-	
-		INSERT INTO liqui_proyect
-	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
-	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 3 ;
-		
-	INSERT INTO liqui_proyect
-	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
-	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 3 ;
+	where  liq.`rol_desempeñado` = 'Analista de Sistemas' AND liq.id_proyecto= 3 ;
+	GROUP BY liq.id_proyecto
 	
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 3 ;
+	where  liq.`rol_desempeñado` = 'Diseñador' AND liq.id_proyecto= 3 ;
+	GROUP BY liq.id_proyecto
 	
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 3 ;
-
+	where  liq.`rol_desempeñado` = 'Gerente de Proyecto' AND liq.id_proyecto= 3 ;
+	GROUP BY liq.id_proyecto
+	
 	INSERT INTO liqui_proyect
 	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	GROUP BY liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,liq.cant_horas_mes,liq.fecha_liquidacion,liq.estado_cuenta
-	HAVING  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 3 ;
-		
+	where  liq.`rol_desempeñado` = 'Ingeniero de Software' AND liq.id_proyecto= 3 ;
+	GROUP BY liq.id_proyecto
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	where  liq.`rol_desempeñado` = 'Lider de Proyecto' AND liq.id_proyecto= 3 ;
+	GROUP BY liq.id_proyecto
+	
+	INSERT INTO liqui_proyect
+	SELECT liq.id ,liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
+	FROM prueba_liqui_proyect liq 
+	where  liq.`rol_desempeñado` = 'tester' AND liq.id_proyecto= 3 ;
+	GROUP BY liq.id_proyecto	
 		
 	select sum(cant_horas_mes) into @monto3
 	from prueba_liqui_proyect  
@@ -391,7 +390,8 @@ declare monto3 INT ;
 	INSERT INTO liqui_proyect(rol_desempeñado,cliente,id_proyecto,proyecto, cant_horas_mes,fecha_liquidacion,estado_cuenta)
 			VALUES ('Astrofísica','Maria',3,'horas totales',@monto3,DATE_ADD(NOW(),INTERVAL 8 day),'pagado');	
 END 
-$$ 
+$$
+
 
 delimiter $$
 create PROCEDURE reajuste_horas_proyect(in variable VARCHAR(50) ,IN id_proyecto INT ,in proyecto VARCHAR(50),IN horas INT ,in rol VARCHAR(50) )
