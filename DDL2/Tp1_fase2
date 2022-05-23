@@ -50,7 +50,6 @@ ALTER TABLE part_proyecto ADD CONSTRAINT
 REFERENCES  facturacion(id_proyecto);
 
 
-
 CREATE TABLE numerador(
 	id_proyecto CHAR(1),
 	siguiente INT
