@@ -133,7 +133,7 @@ declare monto3 INT ;
 	INSERT INTO liqui_proyect
 	SELECT liq.id , liq.`rol_desempeñado`,liq.cliente,liq.id_proyecto,liq.proyecto,SUM(liq.cant_horas_mes),liq.fecha_liquidacion,liq.estado_cuenta
 	FROM prueba_liqui_proyect liq 
-	where par.`rol_desempeñado`='Analista de Sistemas' AND par.id_proyecto= 1 
+	where liq.`rol_desempeñado`='Analista de Sistemas' AND liq.id_proyecto= 1 
 	GROUP BY liq.id_proyecto
 
 	INSERT INTO liqui_proyect
